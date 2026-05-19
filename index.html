@@ -1,0 +1,1255 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ScanGolpe — Antes de confiar, escaneie.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --blue-deep: #0A1628;
+    --blue-dark: #0D2047;
+    --blue-mid: #1A3A6B;
+    --blue-bright: #1565E8;
+    --blue-electric: #2979FF;
+    --blue-light: #5B9BFF;
+    --blue-pale: #C8DDFF;
+    --sky: #E6F0FF;
+    --white: #FFFFFF;
+    --green: #00C48C;
+    --yellow: #FFB800;
+    --red: #FF4757;
+    --text-muted: #8BA3C7;
+    --glass: rgba(255,255,255,0.06);
+    --glass-border: rgba(255,255,255,0.12);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--blue-deep);
+    color: var(--white);
+    overflow-x: hidden;
+  }
+
+  /* ── NOISE OVERLAY ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.4;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    padding: 18px 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(10,22,40,0.85);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--glass-border);
+  }
+
+  .nav-logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 22px;
+    letter-spacing: -0.5px;
+    color: var(--white);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .nav-logo .shield {
+    width: 32px; height: 32px;
+    background: linear-gradient(135deg, var(--blue-electric), var(--blue-light));
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 36px;
+    list-style: none;
+  }
+
+  .nav-links a {
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    transition: color 0.2s;
+  }
+
+  .nav-links a:hover { color: var(--white); }
+
+  .nav-cta {
+    background: var(--blue-electric);
+    color: var(--white);
+    border: none;
+    padding: 10px 24px;
+    border-radius: 100px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .nav-cta:hover { background: var(--blue-light); transform: translateY(-1px); }
+
+  /* ── HERO ── */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 120px 24px 80px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    pointer-events: none;
+  }
+
+  .orb1 {
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(21,101,232,0.35) 0%, transparent 70%);
+    top: -100px; left: 50%;
+    transform: translateX(-50%);
+    animation: pulse 6s ease-in-out infinite;
+  }
+
+  .orb2 {
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(0,196,140,0.15) 0%, transparent 70%);
+    bottom: 0; right: -100px;
+    animation: pulse 8s ease-in-out infinite reverse;
+  }
+
+  .orb3 {
+    width: 300px; height: 300px;
+    background: radial-gradient(circle, rgba(255,71,87,0.1) 0%, transparent 70%);
+    top: 200px; left: -50px;
+    animation: pulse 7s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { transform: translateX(-50%) scale(1); opacity: 1; }
+    50% { transform: translateX(-50%) scale(1.1); opacity: 0.7; }
+  }
+
+  .orb2, .orb3 { animation: pulseSimple 7s ease-in-out infinite; }
+  @keyframes pulseSimple {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.15); opacity: 0.6; }
+  }
+
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    border-radius: 100px;
+    padding: 8px 18px;
+    font-size: 13px;
+    color: var(--blue-light);
+    margin-bottom: 28px;
+    backdrop-filter: blur(10px);
+    animation: fadeUp 0.8s ease both;
+  }
+
+  .badge-dot {
+    width: 7px; height: 7px;
+    background: var(--green);
+    border-radius: 50%;
+    animation: blink 2s ease-in-out infinite;
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  .hero h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(42px, 7vw, 88px);
+    font-weight: 800;
+    line-height: 1.0;
+    letter-spacing: -2px;
+    margin-bottom: 24px;
+    animation: fadeUp 0.8s 0.1s ease both;
+  }
+
+  .hero h1 .accent {
+    background: linear-gradient(90deg, var(--blue-electric), var(--blue-light));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .hero-sub {
+    font-size: clamp(16px, 2vw, 20px);
+    color: var(--text-muted);
+    max-width: 560px;
+    margin: 0 auto 40px;
+    line-height: 1.6;
+    font-weight: 300;
+    animation: fadeUp 0.8s 0.2s ease both;
+  }
+
+  .hero-actions {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    flex-wrap: wrap;
+    animation: fadeUp 0.8s 0.3s ease both;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--blue-electric), var(--blue-bright));
+    color: white;
+    border: none;
+    padding: 16px 36px;
+    border-radius: 100px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-family: 'DM Sans', sans-serif;
+    box-shadow: 0 8px 32px rgba(41,121,255,0.4);
+  }
+
+  .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 16px 48px rgba(41,121,255,0.5); }
+
+  .btn-secondary {
+    background: var(--glass);
+    color: white;
+    border: 1px solid var(--glass-border);
+    padding: 16px 36px;
+    border-radius: 100px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-family: 'DM Sans', sans-serif;
+    backdrop-filter: blur(10px);
+  }
+
+  .btn-secondary:hover { background: rgba(255,255,255,0.12); transform: translateY(-2px); }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── STATS BAR ── */
+  .stats-bar {
+    display: flex;
+    justify-content: center;
+    gap: 64px;
+    padding: 48px 24px;
+    border-top: 1px solid var(--glass-border);
+    border-bottom: 1px solid var(--glass-border);
+    background: var(--glass);
+    flex-wrap: wrap;
+    position: relative;
+    z-index: 1;
+  }
+
+  .stat-item { text-align: center; }
+
+  .stat-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 36px;
+    font-weight: 800;
+    color: var(--blue-light);
+    display: block;
+    margin-bottom: 4px;
+  }
+
+  .stat-label {
+    font-size: 13px;
+    color: var(--text-muted);
+    font-weight: 400;
+  }
+
+  /* ── SCANNER SECTION ── */
+  .scanner-section {
+    padding: 100px 24px;
+    max-width: 900px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+  }
+
+  .section-tag {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--blue-light);
+    margin-bottom: 16px;
+    display: block;
+  }
+
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(32px, 5vw, 52px);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -1px;
+    margin-bottom: 16px;
+  }
+
+  .section-sub {
+    color: var(--text-muted);
+    font-size: 17px;
+    line-height: 1.6;
+    max-width: 540px;
+    margin-bottom: 48px;
+    font-weight: 300;
+  }
+
+  /* SCANNER CARD */
+  .scanner-card {
+    background: linear-gradient(145deg, rgba(26,58,107,0.5), rgba(13,32,71,0.8));
+    border: 1px solid var(--glass-border);
+    border-radius: 24px;
+    padding: 40px;
+    backdrop-filter: blur(20px);
+    box-shadow: 0 32px 80px rgba(0,0,0,0.4);
+  }
+
+  .scan-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 28px;
+    background: rgba(0,0,0,0.3);
+    border-radius: 12px;
+    padding: 4px;
+  }
+
+  .scan-tab {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    border-radius: 9px;
+    background: transparent;
+    color: var(--text-muted);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'DM Sans', sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+
+  .scan-tab.active {
+    background: var(--blue-mid);
+    color: var(--white);
+  }
+
+  .scan-tab:hover:not(.active) { color: var(--white); }
+
+  .scan-input-area {
+    margin-bottom: 20px;
+  }
+
+  .scan-input-area label {
+    display: block;
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+    font-weight: 500;
+  }
+
+  .scan-textarea {
+    width: 100%;
+    background: rgba(0,0,0,0.4);
+    border: 1px solid var(--glass-border);
+    border-radius: 14px;
+    padding: 16px 20px;
+    color: var(--white);
+    font-size: 15px;
+    font-family: 'DM Sans', sans-serif;
+    resize: vertical;
+    min-height: 120px;
+    outline: none;
+    transition: border-color 0.2s;
+    line-height: 1.5;
+  }
+
+  .scan-textarea::placeholder { color: rgba(139,163,199,0.5); }
+  .scan-textarea:focus { border-color: var(--blue-electric); }
+
+  .scan-btn {
+    width: 100%;
+    padding: 16px;
+    background: linear-gradient(135deg, var(--blue-electric), var(--blue-bright));
+    border: none;
+    border-radius: 14px;
+    color: white;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: all 0.3s;
+    box-shadow: 0 8px 24px rgba(41,121,255,0.35);
+  }
+
+  .scan-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 12px 36px rgba(41,121,255,0.5); }
+  .scan-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* RESULT */
+  .result-box {
+    margin-top: 24px;
+    border-radius: 16px;
+    overflow: hidden;
+    display: none;
+    animation: fadeUp 0.5s ease both;
+  }
+
+  .result-box.show { display: block; }
+
+  .result-header {
+    padding: 20px 24px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .result-icon {
+    width: 48px; height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    flex-shrink: 0;
+  }
+
+  .result-level {
+    font-family: 'Syne', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 2px;
+  }
+
+  .result-subtitle { font-size: 13px; opacity: 0.7; }
+
+  .result-body {
+    padding: 0 24px 24px;
+  }
+
+  .result-analysis {
+    font-size: 15px;
+    line-height: 1.65;
+    color: rgba(255,255,255,0.85);
+    margin-bottom: 20px;
+  }
+
+  .result-tips { }
+
+  .result-tips h4 {
+    font-size: 12px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    opacity: 0.5;
+    margin-bottom: 12px;
+    font-weight: 600;
+  }
+
+  .tip-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 0;
+    border-top: 1px solid rgba(255,255,255,0.06);
+    font-size: 14px;
+    line-height: 1.5;
+    color: rgba(255,255,255,0.8);
+  }
+
+  .tip-bullet {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    margin-top: 5px;
+    flex-shrink: 0;
+  }
+
+  .loading-indicator {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 20px;
+    color: var(--text-muted);
+    font-size: 15px;
+  }
+
+  .spinner {
+    width: 20px; height: 20px;
+    border: 2px solid rgba(255,255,255,0.1);
+    border-top-color: var(--blue-light);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── HOW IT WORKS ── */
+  .how-section {
+    padding: 100px 24px;
+    max-width: 1100px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+  }
+
+  .steps-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    margin-top: 60px;
+  }
+
+  .step-card {
+    background: linear-gradient(145deg, rgba(26,58,107,0.3), rgba(13,32,71,0.5));
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 32px;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.3s;
+  }
+
+  .step-card:hover { transform: translateY(-4px); }
+
+  .step-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--blue-electric), transparent);
+  }
+
+  .step-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 64px;
+    font-weight: 800;
+    color: rgba(255,255,255,0.04);
+    position: absolute;
+    top: 16px; right: 24px;
+    line-height: 1;
+  }
+
+  .step-icon {
+    font-size: 36px;
+    margin-bottom: 20px;
+    display: block;
+  }
+
+  .step-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+
+  .step-desc {
+    font-size: 14px;
+    color: var(--text-muted);
+    line-height: 1.6;
+  }
+
+  /* ── FEATURES ── */
+  .features-section {
+    padding: 100px 24px;
+    max-width: 1100px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+  }
+
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    margin-top: 60px;
+  }
+
+  .feature-card {
+    background: linear-gradient(145deg, rgba(26,58,107,0.25), rgba(13,32,71,0.4));
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 28px;
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+    transition: all 0.3s;
+  }
+
+  .feature-card:hover {
+    border-color: rgba(41,121,255,0.3);
+    background: linear-gradient(145deg, rgba(41,121,255,0.1), rgba(13,32,71,0.5));
+  }
+
+  .feat-icon {
+    width: 52px; height: 52px;
+    background: linear-gradient(135deg, rgba(41,121,255,0.2), rgba(41,121,255,0.05));
+    border: 1px solid rgba(41,121,255,0.2);
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    flex-shrink: 0;
+  }
+
+  .feat-content {}
+
+  .feat-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+
+  .feat-desc {
+    font-size: 14px;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+
+  /* ── AUDIENCE ── */
+  .audience-section {
+    padding: 100px 24px;
+    max-width: 1100px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+  }
+
+  .audience-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 40px;
+  }
+
+  .pill {
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    border-radius: 100px;
+    padding: 12px 24px;
+    font-size: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    backdrop-filter: blur(10px);
+    transition: all 0.2s;
+  }
+
+  .pill:hover { border-color: var(--blue-electric); background: rgba(41,121,255,0.1); }
+
+  /* ── PLANS ── */
+  .plans-section {
+    padding: 100px 24px;
+    max-width: 900px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+  }
+
+  .plans-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-top: 60px;
+  }
+
+  .plan-card {
+    background: linear-gradient(145deg, rgba(26,58,107,0.3), rgba(13,32,71,0.5));
+    border: 1px solid var(--glass-border);
+    border-radius: 24px;
+    padding: 36px;
+  }
+
+  .plan-card.featured {
+    background: linear-gradient(145deg, rgba(41,121,255,0.15), rgba(13,32,71,0.7));
+    border-color: rgba(41,121,255,0.4);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .plan-card.featured::after {
+    content: 'RECOMENDADO';
+    position: absolute;
+    top: 16px; right: -28px;
+    background: var(--blue-electric);
+    color: white;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    padding: 4px 40px;
+    transform: rotate(45deg);
+  }
+
+  .plan-name {
+    font-family: 'Syne', sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+
+  .plan-price {
+    font-family: 'Syne', sans-serif;
+    font-size: 42px;
+    font-weight: 800;
+    color: var(--blue-light);
+    margin-bottom: 4px;
+  }
+
+  .plan-price span {
+    font-size: 18px;
+    color: var(--text-muted);
+    font-weight: 400;
+  }
+
+  .plan-desc {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 28px;
+  }
+
+  .plan-features { list-style: none; margin-bottom: 32px; }
+
+  .plan-features li {
+    padding: 10px 0;
+    font-size: 14px;
+    color: rgba(255,255,255,0.8);
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .plan-features li::before {
+    content: '✓';
+    color: var(--green);
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .plan-btn {
+    width: 100%;
+    padding: 14px;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    border: none;
+    transition: all 0.2s;
+  }
+
+  .plan-btn.outline {
+    background: transparent;
+    border: 1px solid var(--glass-border);
+    color: white;
+  }
+
+  .plan-btn.solid {
+    background: linear-gradient(135deg, var(--blue-electric), var(--blue-bright));
+    color: white;
+    box-shadow: 0 8px 24px rgba(41,121,255,0.35);
+  }
+
+  .plan-btn:hover { transform: translateY(-2px); }
+
+  /* ── SLOGAN ── */
+  .slogan-section {
+    text-align: center;
+    padding: 120px 24px;
+    position: relative;
+    z-index: 1;
+    border-top: 1px solid var(--glass-border);
+  }
+
+  .slogan-section p {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(28px, 5vw, 60px);
+    font-weight: 800;
+    line-height: 1.15;
+    letter-spacing: -1px;
+    max-width: 700px;
+    margin: 0 auto 36px;
+  }
+
+  .slogan-section p .accent {
+    background: linear-gradient(90deg, var(--blue-electric), var(--green));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    border-top: 1px solid var(--glass-border);
+    padding: 48px 24px;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+  }
+
+  .footer-logo {
+    font-family: 'Syne', sans-serif;
+    font-size: 20px;
+    font-weight: 800;
+    margin-bottom: 12px;
+    color: var(--white);
+  }
+
+  footer p {
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+
+  /* ── RISK COLORS ── */
+  .risk-low .result-header { background: rgba(0,196,140,0.12); }
+  .risk-low .result-icon { background: rgba(0,196,140,0.2); }
+  .risk-low .result-level { color: var(--green); }
+  .risk-low { border: 1px solid rgba(0,196,140,0.25); background: rgba(0,196,140,0.05); }
+
+  .risk-medium .result-header { background: rgba(255,184,0,0.12); }
+  .risk-medium .result-icon { background: rgba(255,184,0,0.2); }
+  .risk-medium .result-level { color: var(--yellow); }
+  .risk-medium { border: 1px solid rgba(255,184,0,0.25); background: rgba(255,184,0,0.05); }
+
+  .risk-high .result-header { background: rgba(255,71,87,0.12); }
+  .risk-high .result-icon { background: rgba(255,71,87,0.2); }
+  .risk-high .result-level { color: var(--red); }
+  .risk-high { border: 1px solid rgba(255,71,87,0.25); background: rgba(255,71,87,0.05); }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 768px) {
+    nav { padding: 16px 20px; }
+    .nav-links { display: none; }
+    .steps-grid, .features-grid, .plans-grid { grid-template-columns: 1fr; }
+    .scan-tabs { flex-wrap: wrap; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">
+    <div class="shield">🛡️</div>
+    ScanGolpe
+  </div>
+  <ul class="nav-links">
+    <li><a href="#scanner">Scanner</a></li>
+    <li><a href="#como-funciona">Como Funciona</a></li>
+    <li><a href="#funcionalidades">Funcionalidades</a></li>
+    <li><a href="#planos">Planos</a></li>
+  </ul>
+  <button class="nav-cta" onclick="document.getElementById('scanner').scrollIntoView({behavior:'smooth'})">Escanear Agora</button>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-orb orb1"></div>
+  <div class="hero-orb orb2"></div>
+  <div class="hero-orb orb3"></div>
+
+  <div style="position:relative;z-index:1;">
+    <div class="hero-badge">
+      <div class="badge-dot"></div>
+      IA treinada em golpes reais brasileiros
+    </div>
+
+    <h1>
+      O primeiro<br>
+      <span class="accent">detector inteligente</span><br>
+      contra golpes digitais
+    </h1>
+
+    <p class="hero-sub">
+      Cole um link, mensagem, número de Pix ou anúncio suspeito.
+      Em segundos, nossa IA analisa e te protege.
+    </p>
+
+    <div class="hero-actions">
+      <button class="btn-primary" onclick="document.getElementById('scanner').scrollIntoView({behavior:'smooth'})">
+        🔍 Escanear Agora — Grátis
+      </button>
+      <button class="btn-secondary" onclick="document.getElementById('como-funciona').scrollIntoView({behavior:'smooth'})">
+        Como funciona →
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stats-bar">
+  <div class="stat-item">
+    <span class="stat-num">98%</span>
+    <span class="stat-label">Taxa de detecção</span>
+  </div>
+  <div class="stat-item">
+    <span class="stat-num">< 5s</span>
+    <span class="stat-label">Análise instantânea</span>
+  </div>
+  <div class="stat-item">
+    <span class="stat-num">50k+</span>
+    <span class="stat-label">Golpes catalogados</span>
+  </div>
+  <div class="stat-item">
+    <span class="stat-num">100%</span>
+    <span class="stat-label">Gratuito no plano básico</span>
+  </div>
+</div>
+
+<!-- SCANNER -->
+<section class="scanner-section" id="scanner">
+  <span class="section-tag">🔍 Scanner ao vivo</span>
+  <h2 class="section-title">Antes de confiar,<br>escaneie.</h2>
+  <p class="section-sub">Cole qualquer conteúdo suspeito abaixo. Nossa IA analisa em tempo real usando padrões de milhares de golpes reais.</p>
+
+  <div class="scanner-card">
+    <div class="scan-tabs">
+      <button class="scan-tab active" onclick="setTab(this, 'mensagem')">💬 Mensagem</button>
+      <button class="scan-tab" onclick="setTab(this, 'link')">🔗 Link / URL</button>
+      <button class="scan-tab" onclick="setTab(this, 'pix')">💸 Pix / Dados</button>
+      <button class="scan-tab" onclick="setTab(this, 'anuncio')">📢 Anúncio</button>
+    </div>
+
+    <div class="scan-input-area">
+      <label id="scan-label">Cole a mensagem suspeita que você recebeu:</label>
+      <textarea class="scan-textarea" id="scan-input" placeholder="Ex: Parabéns! Você ganhou R$ 5.000 no Pix. Clique aqui para resgatar: bit.ly/premio..."></textarea>
+    </div>
+
+    <button class="scan-btn" id="scan-btn" onclick="analisarConteudo()">
+      🛡️ Analisar com IA
+    </button>
+
+    <div class="result-box" id="result-box">
+      <!-- preenchido via JS -->
+    </div>
+  </div>
+</section>
+
+<!-- COMO FUNCIONA -->
+<section class="how-section" id="como-funciona">
+  <span class="section-tag">⚙️ Processo</span>
+  <h2 class="section-title">Como funciona</h2>
+  <p class="section-sub">Três etapas simples, análise poderosa.</p>
+
+  <div class="steps-grid">
+    <div class="step-card">
+      <span class="step-num">01</span>
+      <span class="step-icon">📤</span>
+      <h3 class="step-title">1. Escaneamento</h3>
+      <p class="step-desc">Você cola um link, mensagem, número de telefone, e-mail, QR Code, Pix ou anúncio suspeito diretamente no scanner.</p>
+    </div>
+    <div class="step-card">
+      <span class="step-num">02</span>
+      <span class="step-icon">🤖</span>
+      <h3 class="step-title">2. IA Analisa</h3>
+      <p class="step-desc">Nossa inteligência artificial detecta palavras suspeitas, pressão psicológica, promessas irreais, urgência falsa e padrões conhecidos de golpe.</p>
+    </div>
+    <div class="step-card">
+      <span class="step-num">03</span>
+      <span class="step-icon">📊</span>
+      <h3 class="step-title">3. Resultado</h3>
+      <p class="step-desc">Você recebe um resultado instantâneo com nível de risco (🟢 Baixo / 🟡 Suspeito / 🔴 Possível Golpe), motivos da análise e o que fazer.</p>
+    </div>
+  </div>
+</section>
+
+<!-- FUNCIONALIDADES -->
+<section class="features-section" id="funcionalidades">
+  <span class="section-tag">🚀 Funcionalidades</span>
+  <h2 class="section-title">Principais<br>funcionalidades</h2>
+
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="feat-icon">🔗</div>
+      <div class="feat-content">
+        <h3 class="feat-title">Detector de Links</h3>
+        <p class="feat-desc">Analisa URLs perigosas, páginas falsas e redirecionamentos maliciosos antes de você clicar.</p>
+      </div>
+    </div>
+    <div class="feature-card">
+      <div class="feat-icon">💬</div>
+      <div class="feat-content">
+        <h3 class="feat-title">Scanner de WhatsApp</h3>
+        <p class="feat-desc">Verifica mensagens suspeitas, tentativas de clonagem de conta e engenharia social.</p>
+      </div>
+    </div>
+    <div class="feature-card">
+      <div class="feat-icon">💸</div>
+      <div class="feat-content">
+        <h3 class="feat-title">Detector de Pix Fraudulento</h3>
+        <p class="feat-desc">Analisa chaves Pix suspeitas, dados bancários e boletos adulterados.</p>
+      </div>
+    </div>
+    <div class="feature-card">
+      <div class="feat-icon">📷</div>
+      <div class="feat-content">
+        <h3 class="feat-title">Verificador de QR Code</h3>
+        <p class="feat-desc">Detecta redirecionamentos maliciosos e QR Codes que levam a páginas de phishing.</p>
+      </div>
+    </div>
+    <div class="feature-card">
+      <div class="feat-icon">🤝</div>
+      <div class="feat-content">
+        <h3 class="feat-title">Banco Colaborativo</h3>
+        <p class="feat-desc">Usuários podem denunciar golpes para alertar outros. Inteligência coletiva da comunidade.</p>
+      </div>
+    </div>
+    <div class="feature-card">
+      <div class="feat-icon">👴</div>
+      <div class="feat-content">
+        <h3 class="feat-title">Modo Idosos</h3>
+        <p class="feat-desc">Interface simplificada com letras maiores, alertas mais claros e linguagem acessível para qualquer idade.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PÚBLICO ALVO -->
+<section class="audience-section">
+  <span class="section-tag">👥 Público-alvo</span>
+  <h2 class="section-title">Para quem é</h2>
+  <p class="section-sub">O ScanGolpe foi projetado para proteger todo tipo de usuário digital.</p>
+
+  <div class="audience-pills">
+    <div class="pill">👴 Idosos</div>
+    <div class="pill">📱 Usuários de WhatsApp</div>
+    <div class="pill">🛒 Compradores online</div>
+    <div class="pill">🏪 Pequenas empresas</div>
+    <div class="pill">💸 Usuários de Pix</div>
+    <div class="pill">🌱 Pessoas com pouca experiência digital</div>
+    <div class="pill">👨‍💼 Empreendedores</div>
+    <div class="pill">📧 Usuários de e-mail</div>
+  </div>
+</section>
+
+<!-- PLANOS -->
+<section class="plans-section" id="planos">
+  <span class="section-tag">💰 Monetização</span>
+  <h2 class="section-title" style="text-align:center;">Planos simples,<br>proteção real</h2>
+
+  <div class="plans-grid">
+    <div class="plan-card">
+      <div class="plan-name">🟢 Gratuito</div>
+      <div class="plan-price">R$ 0<span>/mês</span></div>
+      <p class="plan-desc">Análises básicas com limite diário</p>
+      <ul class="plan-features">
+        <li>5 análises por dia</li>
+        <li>Scanner de mensagens e links</li>
+        <li>Resultado instantâneo</li>
+        <li>Dicas de segurança</li>
+      </ul>
+      <button class="plan-btn outline">Começar grátis</button>
+    </div>
+
+    <div class="plan-card featured">
+      <div class="plan-name">⚡ Premium</div>
+      <div class="plan-price">R$ 14<span>.90/mês</span></div>
+      <p class="plan-desc">Proteção completa e sem limites</p>
+      <ul class="plan-features">
+        <li>Análises ilimitadas</li>
+        <li>Monitoramento contínuo</li>
+        <li>Alertas automáticos</li>
+        <li>Proteção familiar (até 5)</li>
+        <li>Histórico de análises</li>
+        <li>Suporte prioritário</li>
+      </ul>
+      <button class="plan-btn solid">Assinar Premium</button>
+    </div>
+  </div>
+</section>
+
+<!-- SLOGAN -->
+<section class="slogan-section">
+  <p>
+    <span class="accent">Antes de confiar,</span><br>
+    escaneie. 🛡️
+  </p>
+  <button class="btn-primary" onclick="document.getElementById('scanner').scrollIntoView({behavior:'smooth'})">
+    Escanear agora — é grátis
+  </button>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">🛡️ ScanGolpe</div>
+  <p>Seu detector inteligente contra golpes digitais.</p>
+  <p style="margin-top:8px;">Desenvolvido por Hannah Morales · Samira Hadid · Juliana Silva</p>
+</footer>
+
+<script>
+  let currentTab = 'mensagem';
+
+  const tabLabels = {
+    mensagem: 'Cole a mensagem suspeita que você recebeu (WhatsApp, SMS, e-mail, etc.):',
+    link: 'Cole o link ou URL suspeita para análise:',
+    pix: 'Cole a chave Pix, dados bancários ou boleto suspeito:',
+    anuncio: 'Cole o texto do anúncio ou oferta suspeita:'
+  };
+
+  const tabPlaceholders = {
+    mensagem: 'Ex: Parabéns! Você ganhou R$ 5.000 no Pix. Clique aqui para resgatar: bit.ly/premio...',
+    link: 'Ex: http://bradesco-seguranca.com.br/atualizar-dados ou qualquer URL suspeita',
+    pix: 'Ex: Chave Pix: 098.765.432-10 — Nome: João da Silva — Banco: XYZ',
+    anuncio: 'Ex: iPhone 15 NOVO por apenas R$ 800! Estoque limitado! Pague via Pix e receba em 24h!'
+  };
+
+  function setTab(btn, tab) {
+    document.querySelectorAll('.scan-tab').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+    currentTab = tab;
+    document.getElementById('scan-label').textContent = tabLabels[tab];
+    document.getElementById('scan-input').placeholder = tabPlaceholders[tab];
+    document.getElementById('scan-input').value = '';
+    document.getElementById('result-box').classList.remove('show');
+  }
+
+  async function analisarConteudo() {
+    const input = document.getElementById('scan-input').value.trim();
+    if (!input) {
+      document.getElementById('scan-input').focus();
+      return;
+    }
+
+    const btn = document.getElementById('scan-btn');
+    const resultBox = document.getElementById('result-box');
+
+    btn.disabled = true;
+    btn.innerHTML = '<div class="spinner"></div> Analisando com IA...';
+
+    resultBox.innerHTML = `
+      <div class="loading-indicator">
+        <div class="spinner"></div>
+        Verificando padrões de golpe, reputação e sinais de risco...
+      </div>`;
+    resultBox.className = 'result-box show';
+
+    try {
+      const systemPrompt = `Você é o ScanGolpe, um sistema especializado em detectar golpes digitais no Brasil. 
+Analise o conteúdo fornecido e responda APENAS em JSON válido no seguinte formato:
+{
+  "risco": "baixo" | "medio" | "alto",
+  "nivel_texto": "Baixo Risco" | "Suspeito" | "POSSÍVEL GOLPE",
+  "emoji": "🟢" | "🟡" | "🔴",
+  "analise": "Análise clara e direta em 2-3 frases explicando o que foi detectado",
+  "dicas": ["dica 1", "dica 2", "dica 3"],
+  "o_que_fazer": "Instrução clara do que a pessoa deve fazer agora"
+}
+
+Analise considerando: palavras de pressão/urgência, promessas irreais, links suspeitos, pedido de dados pessoais/bancários, erros ortográficos suspeitos, padrões clássicos de golpe brasileiro (Pix falso, falsa promoção, clonagem de WhatsApp, boleto adulterado, phishing bancário, etc).
+Responda SOMENTE o JSON, sem mais nada.`;
+
+      const response = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model: "claude-sonnet-4-20250514",
+          max_tokens: 1000,
+          system: systemPrompt,
+          messages: [{
+            role: "user",
+            content: `Tipo de conteúdo: ${currentTab}\n\nConteúdo para análise:\n${input}`
+          }]
+        })
+      });
+
+      const data = await response.json();
+      const text = data.content[0].text.trim();
+      const clean = text.replace(/```json|```/g, '').trim();
+      const result = JSON.parse(clean);
+
+      const riskClass = result.risco === 'baixo' ? 'risk-low' : result.risco === 'medio' ? 'risk-medium' : 'risk-high';
+      const tipBulletColor = result.risco === 'baixo' ? '#00C48C' : result.risco === 'medio' ? '#FFB800' : '#FF4757';
+
+      resultBox.className = `result-box show ${riskClass}`;
+      resultBox.innerHTML = `
+        <div class="result-header">
+          <div class="result-icon">${result.emoji}</div>
+          <div>
+            <div class="result-level">${result.nivel_texto}</div>
+            <div class="result-subtitle">Análise ScanGolpe — IA</div>
+          </div>
+        </div>
+        <div class="result-body">
+          <p class="result-analysis">${result.analise}</p>
+          <div class="result-tips">
+            <h4>O que observamos</h4>
+            ${result.dicas.map(d => `
+              <div class="tip-item">
+                <div class="tip-bullet" style="background:${tipBulletColor}"></div>
+                <span>${d}</span>
+              </div>`).join('')}
+          </div>
+          <div style="margin-top:20px;padding:16px;background:rgba(0,0,0,0.25);border-radius:12px;font-size:14px;line-height:1.5;">
+            <strong style="font-size:12px;letter-spacing:1px;text-transform:uppercase;opacity:0.5;display:block;margin-bottom:8px;">O QUE FAZER</strong>
+            ${result.o_que_fazer}
+          </div>
+        </div>`;
+    } catch (err) {
+      resultBox.className = 'result-box show risk-medium';
+      resultBox.innerHTML = `
+        <div class="result-header">
+          <div class="result-icon">⚠️</div>
+          <div>
+            <div class="result-level" style="color:#FFB800;">Erro na análise</div>
+            <div class="result-subtitle">Tente novamente</div>
+          </div>
+        </div>
+        <div class="result-body">
+          <p class="result-analysis">Não foi possível completar a análise. Verifique sua conexão e tente novamente.</p>
+        </div>`;
+    }
+
+    btn.disabled = false;
+    btn.innerHTML = '🛡️ Analisar com IA';
+  }
+
+  // Enter to submit
+  document.addEventListener('keydown', e => {
+    if (e.ctrlKey && e.key === 'Enter') analisarConteudo();
+  });
+</script>
+</body>
+</html>
