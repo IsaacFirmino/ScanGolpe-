@@ -7,14 +7,20 @@
   <title>ScanGolpe | Protecao contra golpes digitais</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <header class="app-header">
     <a class="brand" href="#inicio" aria-label="ScanGolpe inicio">
-      <span class="brand-mark" aria-hidden="true">SG</span>
-      <span>
+      <span class="brand-mark" aria-hidden="true">
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M12 2L4 5v6c0 5.25 3.4 9.74 8 11 4.6-1.26 8-5.75 8-11V5l-8-3z"
+          fill="currentColor"/>
+    <path d="M9.5 12.2l1.8 1.8 3.6-4.2"
+          stroke="var(--bg)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+</span>
         <strong>ScanGolpe</strong>
         <small>Defesa antifraude</small>
       </span>
@@ -56,13 +62,15 @@
           <span>Status do motor</span>
           <strong>Ativo</strong>
         </div>
-        <div class="risk-orbit" aria-hidden="true">
-          <span></span>
-          <span></span>
-          <span></span>
-          <div>
+        <div class="scan-frame" aria-hidden="true">
+          <div class="scan-corner tl"></div>
+          <div class="scan-corner tr"></div>
+          <div class="scan-corner bl"></div>
+          <div class="scan-corner br"></div>
+          <div class="scan-line"></div>
+          <div class="scan-core">
             <strong>87</strong>
-            <small>sinais</small>
+            <small>sinais ativos</small>
           </div>
         </div>
         <div class="signal-list">
@@ -121,7 +129,7 @@
 
         <button class="scan-button" id="scan-button" type="button">
           <span class="button-icon" aria-hidden="true"></span>
-          Analisar seguranca
+          Iniciar varredura
         </button>
 
         <section class="result-card" id="result-card" aria-live="polite" aria-hidden="true"></section>

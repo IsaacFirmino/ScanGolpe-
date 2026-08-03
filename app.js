@@ -17,44 +17,8 @@ const tabConfig = {
   }
 };
 
-const knownBrands = [
-  "nubank",
-  "itau",
-  "bradesco",
-  "caixa",
-  "santander",
-  "bancodobrasil",
-  "bb",
-  "inter",
-  "picpay",
-  "mercadolivre",
-  "olx",
-  "instagram",
-  "whatsapp",
-  "facebook",
-  "correios",
-  "gov",
-  "serasa"
-];
-
-const safeDomains = [
-  "nubank.com.br",
-  "itau.com.br",
-  "bradesco.com.br",
-  "caixa.gov.br",
-  "santander.com.br",
-  "bb.com.br",
-  "bancointer.com.br",
-  "picpay.com",
-  "mercadolivre.com.br",
-  "olx.com.br",
-  "instagram.com",
-  "whatsapp.com",
-  "facebook.com",
-  "correios.com.br",
-  "gov.br",
-  "serasa.com.br"
-];
+let knownBrands = [];
+let safeDomains = [];
 
 const rules = [
   {
@@ -168,14 +132,71 @@ function isSafeDomain(hostname) {
   return safeDomains.some((domain) => clean === domain || clean.endsWith(`.${domain}`));
 }
 
+function levenshteinDistance(a, b) {
+  const matrix = [];
+  for (let i = 0; i <= b.length; i++) {
+    matrix[i] = [i];
+  }
+  for (let j = 0; j <= a.length; j++) {
+    matrix[0][j] = j;
+  }
+  for (let i = 1; i <= b.length; i++) {
+    for (let j = 1; j <= a.length; j++) {
+      if (b.charAt(i - 1) === a.charAt(j - 1)) {
+        matrix[i][j] = matrix[i - 1][j - 1];
+      } else {
+        matrix[i][j] = Math.min(matrix[i - 1][j - 1] + 1, Math.min(matrix[i][j - 1] + 1, matrix[i - 1][j] + 1));
+      }
+    }
+  }
+  return matrix[b.length][a.length];
+}
+
 function detectBrandSpoof(hostname) {
   const clean = getRegistrableHint(hostname);
-  if (isSafeDomain(hostname)) return null;
+  if (isSafeDomain(hostname)) return { brand: null, type: null };
 
-  return knownBrands.find((brand) => {
+  let detectedBrand = null;
+  let spoofType = null;
+
+  for (const brand of knownBrands) {
     const compactBrand = brand.replace(/[^a-z0-9]/g, "");
-    return clean.includes(compactBrand) && !safeDomains.some((domain) => getRegistrableHint(domain) === clean);
-  });
+    
+    // 1. Exact inclusion (e.g. nubank in nubank-verificacao)
+    if (clean.includes(compactBrand)) {
+      detectedBrand = brand;
+      spoofType = 'exact';
+      
+      // Check if it's a deceptive subdomain (e.g. nubank.suporte.com)
+      const parts = hostname.split('.');
+      if (parts.length > 2) {
+         const subdomainParts = parts.slice(0, -2);
+         if (subdomainParts.some(p => p.includes(compactBrand))) {
+            spoofType = 'subdomain';
+         }
+      }
+      break;
+    }
+    
+    // 2. Typosquatting (Levenshtein distance 1 or 2)
+    if (Math.abs(clean.length - compactBrand.length) <= 2) {
+      const distance = levenshteinDistance(clean, compactBrand);
+      if (distance > 0 && distance <= 2) {
+        detectedBrand = brand;
+        spoofType = 'typo';
+        break;
+      }
+    }
+  }
+
+  if (detectedBrand) {
+    const matchesSafe = safeDomains.some((domain) => getRegistrableHint(domain) === clean);
+    if (!matchesSafe) {
+      return { brand: detectedBrand, type: spoofType };
+    }
+  }
+
+  return { brand: null, type: null };
 }
 
 function addSignal(signals, signal) {
@@ -239,16 +260,66 @@ function analyzeUrls(urls, signals) {
       });
     }
 
-    const spoofedBrand = detectBrandSpoof(hostname);
-    if (spoofedBrand) {
+    // Structure Checks
+    const hyphenCount = (hostname.match(/-/g) || []).length;
+    if (hyphenCount >= 3) {
       addSignal(signals, {
-        id: `spoof_${spoofedBrand}`,
-        label: `Dominio possivelmente imita ${spoofedBrand}`,
-        detail: "O dominio contem nome de marca conhecida, mas nao corresponde aos dominios oficiais conhecidos pelo scanner.",
+        id: "excesso_hifens",
+        label: "URL com excesso de hifens",
+        detail: "Dominios fraudulentos costumam usar muitos hifens para imitar caminhos legitimos (ex: seguranca-conta-verificacao).",
+        severity: "medium",
+        weight: 12
+      });
+    }
+
+    const numberCount = (hostname.match(/\d/g) || []).length;
+    if (numberCount >= 4) {
+      addSignal(signals, {
+        id: "excesso_numeros",
+        label: "URL com excesso de numeros",
+        detail: "Dominios com muitos numeros gerados aleatoriamente indicam baixa confiabilidade.",
+        severity: "medium",
+        weight: 10
+      });
+    }
+
+    const partsCount = hostname.split('.').length;
+    if (partsCount >= 4) {
+      addSignal(signals, {
+        id: "excesso_subdominios",
+        label: "URL com muitos subdominios",
+        detail: "Dominios verdadeiros geralmente sao curtos. Excesso de subdominios pode tentar esconder a origem real do site.",
+        severity: "medium",
+        weight: 12
+      });
+    }
+
+    if (hostname.includes('xn--')) {
+      addSignal(signals, {
+        id: "punycode",
+        label: "Uso de Punycode (caracteres invisiveis/homoglifos)",
+        detail: "O dominio usa caracteres especiais para parecer com letras normais, uma tatica comum de phishing para enganar a vitima.",
+        severity: "high",
+        weight: 20
+      });
+    }
+
+    const spoofInfo = detectBrandSpoof(hostname);
+    if (spoofInfo.brand) {
+      let detailMsg = `O dominio contem o nome da marca ${spoofInfo.brand}, mas nao e oficial.`;
+      if (spoofInfo.type === 'typo') detailMsg = `O dominio possui pequenos erros de digitacao propositais para imitar a marca ${spoofInfo.brand}.`;
+      if (spoofInfo.type === 'subdomain') detailMsg = `O nome da marca ${spoofInfo.brand} esta sendo usado em um subdominio para dar falsa credibilidade ao link.`;
+
+      addSignal(signals, {
+        id: `spoof_${spoofInfo.brand}`,
+        label: `Dominio imita a marca ${spoofInfo.brand}`,
+        detail: detailMsg,
         severity: "critical",
         weight: 28
       });
     }
+
+    // TODO (Backend): Integrar API de reputacao de dominio (ex: Google Safe Browsing / PhishTank) aqui em versoes futuras.
   });
 }
 
@@ -366,45 +437,45 @@ function buildResult({ risk, score, confidence, signals, urls, type }) {
     low: {
       className: "risk-low",
       label: "Baixo risco",
-      title: "Nenhum padrao forte de golpe foi detectado",
-      summary: "O conteudo nao apresenta sinais fortes conhecidos pelo scanner. Ainda assim, confirme por canais oficiais quando houver dinheiro, dados pessoais ou pressa.",
+      title: "Nenhum indicador de fraude detectado",
+      summary: "Varredura concluída sem padrões relevantes. O motor não identificou combinações de risco conhecidas nesta amostra. Ainda assim, confirme por canal oficial antes de transferir dinheiro ou fornecer dados.",
       actions: [
-        "Nao compartilhe senhas, tokens ou codigos fora do app oficial.",
-        "Confirme pagamentos diretamente no aplicativo do banco.",
-        "Se a mensagem parecer estranha, procure a empresa por um canal oficial."
+        "Nunca compartilhe senhas, tokens ou códigos fora do app oficial.",
+        "Confirme qualquer pagamento diretamente no aplicativo do banco.",
+        "Em caso de dúvida, contate a empresa pelo número do verso do cartão ou site oficial."
       ]
     },
     medium: {
       className: "risk-medium",
-      label: "Atencao",
-      title: "Existem sinais que merecem verificacao",
-      summary: "O conteudo tem indicios usados em golpes, mas ainda precisa de contexto. Nao clique nem pague antes de confirmar a origem.",
+      label: "Atenção",
+      title: "Indicadores suspeitos detectados — verificação necessária",
+      summary: "A varredura identificou elementos frequentemente associados a fraudes. Nível insuficiente para classificar como golpe confirmado, mas exige confirmação antes de qualquer ação.",
       actions: [
         "Verifique o remetente por outro canal antes de responder.",
-        "Digite o site oficial manualmente no navegador em vez de usar o link recebido.",
-        "Evite Pix ou transferencia ate validar identidade, valor e motivo."
+        "Acesse o site oficial digitando o endereço manualmente, não use o link recebido.",
+        "Suspenda qualquer Pix ou transferência até validar identidade e motivo."
       ]
     },
     high: {
       className: "risk-high",
       label: "Alto risco",
-      title: "O conteudo parece uma tentativa de golpe",
-      summary: "Foram encontrados sinais fortes de engenharia social, phishing ou pagamento arriscado. Interrompa a acao e confirme por canais oficiais.",
+      title: "Múltiplos sinais de alto risco detectados",
+      summary: "Padrões críticos de engenharia social, phishing ou pagamento fraudulento identificados. Interrompa qualquer ação em andamento e acione canal oficial.",
       actions: [
-        "Nao clique no link, nao envie dados e nao faca pagamentos.",
-        "Bloqueie o contato se ele continuar pressionando.",
-        "Se voce ja informou dados, fale com seu banco imediatamente."
+        "Não clique em links, não forneça dados e não efetue pagamentos.",
+        "Bloqueie o contato se houver pressão contínua.",
+        "Se dados já foram fornecidos, contate seu banco imediatamente."
       ]
     },
     critical: {
       className: "risk-critical",
-      label: "Risco critico",
-      title: "Padrao muito compativel com fraude digital",
-      summary: "O scanner encontrou combinacoes criticas, como dominio falso, pedido de dados, urgencia ou dinheiro. Trate como golpe ate prova em contrario.",
+      label: "Risco crítico",
+      title: "Combinação de alto risco confirmada — trate como fraude",
+      summary: "O motor detectou combinações de máxima severidade: domínio fraudulento, solicitação de dados sensíveis, urgência ou promessa de dinheiro em conjunto. Trate como golpe até comprovação contrária.",
       actions: [
-        "Feche a conversa ou pagina sem interagir.",
-        "Acione banco, operadora ou empresa pelo canal oficial.",
-        "Preserve prints e registre denuncia se houve perda financeira ou vazamento de dados."
+        "Encerre a conversa ou feche a página sem interagir.",
+        "Acione banco, operadora ou empresa pelo canal oficial verificado.",
+        "Preserve capturas de tela e registre denúncia se houve perda financeira."
       ]
     }
   };
@@ -420,8 +491,8 @@ function buildResult({ risk, score, confidence, signals, urls, type }) {
     score,
     confidence,
     signals: topSignals.length ? topSignals : [{
-      label: "Sem indicadores fortes",
-      detail: "O motor local nao encontrou padroes relevantes nesta amostra.",
+      label: "Sem indicadores detectados",
+      detail: "O motor de varredura não encontrou padrões relevantes nesta amostra.",
       severity: "low",
       weight: 0
     }],
@@ -450,10 +521,10 @@ function renderResult(result) {
         <span class="risk-label"><span class="risk-dot"></span>${escapeHtml(result.label)}</span>
         <h3 class="risk-title">${escapeHtml(result.title)}</h3>
       </div>
-      <div class="confidence-ring" aria-label="Confianca da analise ${result.confidence}%">
+      <div class="confidence-ring" aria-label="Confiança da análise ${result.confidence}%">
         <div>
           <strong>${result.confidence}%</strong>
-          <span>confianca</span>
+          <span>conf.</span>
         </div>
       </div>
     </div>
@@ -463,7 +534,7 @@ function renderResult(result) {
         <div class="signal-stack">${signalMarkup}</div>
       </div>
       <div>
-        <h3>O que fazer agora</h3>
+        <h3>Protocolo recomendado</h3>
         <ul class="next-actions">${actionMarkup}</ul>
       </div>
     </div>
@@ -512,7 +583,7 @@ function setLoading(isLoading) {
   state.running = isLoading;
   elements.button.disabled = isLoading;
   elements.button.classList.toggle("loading", isLoading);
-  elements.button.lastChild.textContent = isLoading ? " Analisando ameacas..." : " Analisar seguranca";
+  elements.button.lastChild.textContent = isLoading ? " Varrendo ameaças..." : " Iniciar varredura";
 }
 
 async function runAnalysis() {
@@ -567,6 +638,29 @@ function bindEvents() {
   });
 }
 
-initTheme();
-bindEvents();
-updateCharacterCount();
+async function loadBrands() {
+  try {
+    setLoading(true);
+    elements.button.lastChild.textContent = " Carregando bases...";
+    const response = await fetch('brands.json');
+    if (!response.ok) throw new Error('Erro ao carregar brands.json');
+    const data = await response.json();
+    knownBrands = data.knownBrands || [];
+    safeDomains = data.safeDomains || [];
+  } catch (error) {
+    console.warn("Falha ao carregar brands.json. Usando fallback local.", error);
+    knownBrands = ["nubank", "itau", "bradesco", "caixa", "santander", "bancodobrasil", "bb"];
+    safeDomains = ["nubank.com.br", "itau.com.br", "bradesco.com.br", "caixa.gov.br", "santander.com.br", "bb.com.br"];
+  } finally {
+    setLoading(false);
+  }
+}
+
+async function init() {
+  initTheme();
+  bindEvents();
+  updateCharacterCount();
+  await loadBrands();
+}
+
+init();

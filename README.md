@@ -1,58 +1,65 @@
-# 🛡️ ScanGolpe — Antes de confiar, escaneie.
+# 🛡️ ScanGolpe — Threat Intelligence & Detecção de Fraudes Digitais
 
-O **ScanGolpe** é uma landing page moderna e interativa que funciona como o primeiro detector inteligente contra golpes digitais focado no cenário brasileiro. O projeto combina uma interface de usuário elegante de alta fidelidade (estilo *Glassmorphism*) com um scanner em tempo real que utiliza Inteligência Artificial para analisar o risco de mensagens, links, chaves Pix e anúncios suspeitos.
-
----
-
-## 🚀 Funcionalidades Principais
-
-* **Scanner Inteligente Multicategoria:** Abas dedicadas para analisar diferentes tipos de conteúdos suspeitos:
-    * 💬 **Mensagens:** Focado em tentativas de clonagem de WhatsApp, SMS falsos e engenharia social.
-    * 🔗 **Links / URLs:** Identifica páginas falsas (phishing) e redirecionamentos maliciosos.
-    * 💸 **Pix / Dados:** Avalia chaves Pix, boletos adulterados e dados bancários suspeitos.
-    * 📢 **Anúncios:** Detecta falsas promoções com preços irreais e senso de urgência forçado.
-* **Análise em Tempo Real:** Retorna instantaneamente um nível de risco categorizado por cores (🟢 Baixo, 🟡 Suspeito, 🔴 Possível Golpe).
-* **Interface Glassmorphism Dinâmica:** Efeitos visuais modernos com orbes de luz animados no fundo, blur responsivo e paleta de cores escuras de alta tecnologia.
-* **Modo Idosos Integrado:** Menção na arquitetura para acessibilidade facilitada.
+O **ScanGolpe** é uma plataforma avançada de prevenção contra fraudes digitais, focada em identificar e neutralizar ameaças cibernéticas no cenário brasileiro. Através de um mecanismo de verificação em tempo real, o sistema analisa domínios maliciosos, esquemas de phishing, chaves Pix fraudulentas e mensagens de engenharia social, fornecendo um diagnóstico técnico e analítico instantâneo.
 
 ---
 
-## 🛠️ Tecnologias Utilizadas
+## 🚀 Arquitetura de Detecção
 
-O projeto foi construído de forma minimalista e eficiente utilizando apenas tecnologias nativas da web (Single File Application):
+O sistema é equipado com algoritmos focados na análise de padrões maliciosos, classificados em múltiplas frentes de atuação:
 
-* **HTML5:** Estruturação semântica da página e das seções de conversão.
-* **CSS3 moderno:** * Variáveis CSS para gerenciamento de temas.
-    * Animações personalizadas (`@keyframes`) para os efeitos de pulso dos orbes de fundo.
-    * Layout responsivo estruturado com **Flexbox** e **CSS Grid**.
-    * Design baseado em filtros de desfoque (`backdrop-filter`) para efeito de vidro.
-* **JavaScript (Vanilla JS):**
-    * Gerenciamento dinâmico de estado das abas do scanner.
-    * Manipulação assíncrona do DOM para exibição dos estados de carregamento e renderização dos cartões de risco.
-    * Integração direta com a API da Anthropic usando o modelo `claude-sonnet` via requisições HTTP (`fetch`).
+- 💬 **Engenharia Social (Mensagens):** Detecção de esquemas de manipulação, clonagem de contas (ex: WhatsApp) e falsas centrais de atendimento.
+- 🔗 **Phishing e Typosquatting (Links):** Validação estrutural de URLs e cruzamento de dados com marcas reais utilizando algoritmos de proximidade (Distância de Levenshtein) para identificar domínios fraudulentos.
+- 💸 **Fraudes Financeiras (Pix/Dados):** Inspeção de chaves de transferência, QR Codes e boletos adulterados.
+- 📢 **Anúncios Maliciosos:** Mapeamento de gatilhos mentais coercitivos, falsas escassezes e promoções irreais.
 
 ---
 
-## 🎨 Design e Identidade Visual
+## 🛠️ Tecnologias e Estrutura do Projeto
 
-A interface adota um tom corporativo de cibersegurança misturado com a modernidade das ferramentas de IA:
-* **Tipografia:** `Syne` para títulos marcantes e geométricos; `DM Sans` para textos de leitura fluida.
-* **Cores Principais:** Tons profundos de azul (`#0A1628` ao `#2979FF`) contrastados com cores semânticas de alerta de risco (Verde, Amarelo e Vermelho).
-* **Filtro de Ruído:** Um padrão sutil de ruído em SVG é aplicado sobre o fundo para dar uma textura premium ao layout.
+A aplicação adota uma arquitetura modular baseada em tecnologias front-end modernas, priorizando performance, manutenibilidade e segurança na detecção (client-side):
 
----
-
-## 🔧 Como Executar o Projeto
-
-Como o projeto está contido inteiramente em um único arquivo (`index.html`), a execução é extremamente simples:
-
-1. Baixe ou clone este repositório.
-2. Abra o arquivo `index.html` diretamente em qualquer navegador moderno.
-
-> ⚠️ **Nota sobre a Integração com a API:** > O script realiza uma chamada `fetch` diretamente para a API da Anthropic (`https://api.anthropic.com/v1/messages`). Para que a análise com IA funcione em produção, certifique-se de configurar corretamente os cabeçalhos de autenticação com a sua chave de API (`x-api-key`) ou rotear as requisições através de um servidor backend/serverless para proteger suas credenciais de exposição no front-end.
+- **HTML5:** Estrutura semântica (`index.html`) e acessível da interface de análise.
+- **CSS3 Modular (`styles.css`):**
+  - Tipografia técnica (`JetBrains Mono` para dados analíticos, `Inter` para legibilidade).
+  - Identidade visual sob paleta sóbria (Deep Space Black & Neon Cyan), refletindo um ambiente corporativo de cibersegurança.
+  - Animações de varredura (Scanline) e efeitos visuais avançados (`backdrop-filter`) para uma experiência de diagnóstico realista.
+- **JavaScript (Vanilla JS):**
+  - **`app.js`**: Core lógico da aplicação, responsável pelo roteamento das validações, parsing de URLs, cálculo algorítmico de Levenshtein e renderização dinâmica dos relatórios de ameaça.
+  - **`brands.json`**: Base de dados externa de marcas monitoradas, permitindo escalabilidade e atualização fácil das assinaturas de detecção de phishing sem alteração no código fonte.
 
 ---
 
-## 👥 Desenvolvedoras do Projeto
-* Isabelle Firmino
-* Vinicius Santos
+## 🎨 Identidade Visual e UI/UX
+
+O design foi concebido sob princípios de interfaces de ferramentas de _Threat Intelligence_ (Inteligência de Ameaças):
+
+- **Linguagem de Relatório:** Os resultados das análises são apresentados com precisão técnica (nível de risco, tipo de ameaça, recomendações táticas).
+- **Feedback Visual:** Uso de scanlines radiais, conectores e marcadores de status (🔴 Crítico, 🟡 Alerta, 🟢 Seguro) para comunicação universal e instantânea do nível de ameaça.
+
+---
+
+## 🔧 Como Executar o Ambiente de Desenvolvimento
+
+O projeto foi refatorado para uma estrutura modular. Devido à integração com o arquivo `brands.json`, a execução exige um servidor web local.
+
+1. Clone o repositório para o seu ambiente local:
+   ```bash
+   git clone https://github.com/IsaacFirmino/ScanGolpe-.git
+   ```
+2. Acesse o diretório do projeto:
+   ```bash
+   cd ScanGolpe-
+   ```
+3. Inicie um servidor web local. Recomendamos o uso da extensão **Live Server** no VS Code ou o módulo nativo do Python:
+   ```bash
+   python -m http.server 8000
+   ```
+4. Acesse a aplicação através do navegador no endereço [https://isaacfirmino.github.io/ScanGolpe-](https://isaacfirmino.github.io/ScanGolpe-).
+
+---
+
+## 👥 Pesquisadores e Desenvolvedores
+
+- Isabelle Firmino
+- Isaac Firmino
