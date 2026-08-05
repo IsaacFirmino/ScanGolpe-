@@ -7,7 +7,7 @@
   <title>ScanGolpe | Protecao contra golpes digitais</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -30,55 +30,67 @@
       <a href="#scanner">Scanner</a>
       <a href="#modelo">Modelo</a>
       <a href="#defesas">Defesas</a>
-      <a href="#planos">Planos</a>
     </nav>
 
     <div class="header-actions">
-      <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Alternar tema claro ou escuro">
-        <span class="theme-icon" aria-hidden="true"></span>
-        <span id="theme-label">Tema escuro</span>
+      <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Ativar tema claro" aria-pressed="true">
+        <span class="toggle-knob" aria-hidden="true">
+          <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8Z"/></svg>
+          <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+        </span>
+        <span class="toggle-sun" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+        </span>
+        <span class="sr-only" id="theme-label">Ativar tema claro</span>
       </button>
       <a class="header-cta" href="#scanner">Escanear</a>
     </div>
   </header>
 
   <main id="inicio">
-    <section class="hero-section">
-      <div class="hero-copy">
-        <span class="eyebrow">Analise preventiva contra golpes</span>
-        <h1>Verifique mensagens, links e Pix antes de confiar.</h1>
-        <p>
-          O ScanGolpe cruza sinais de engenharia social, URLs suspeitas, pressao psicologica,
-          pedidos de dados e padroes de fraude para reduzir o risco de golpes simples e ataques mais elaborados.
-        </p>
+    <section class="hero-section hero-14" aria-labelledby="hero-title">
+      <div class="hero-grid hero-grid-top" aria-hidden="true"></div>
+      <div class="hero-grid hero-grid-bottom" aria-hidden="true"></div>
+      <img class="hero-beam hero-beam-left" src="public/originkit/hero-14/abstract-design.svg" alt="" aria-hidden="true">
+      <img class="hero-beam hero-beam-right" src="public/originkit/hero-14/abstract-design.svg" alt="" aria-hidden="true">
+
+      <div class="hero-content">
+        <div class="hero-emblem" aria-hidden="true">
+          <span class="emblem-orbit orbit-one"></span>
+          <span class="emblem-orbit orbit-two"></span>
+          <span class="emblem-shield">
+            <svg width="62" height="62" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 2L4 5v6c0 5.25 3.4 9.74 8 11 4.6-1.26 8-5.75 8-11V5l-8-3z" fill="currentColor"/>
+              <path d="M8.7 12.2l2.05 2.05 4.55-5.1" stroke="#07110a" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+          <span class="spark spark-one"></span><span class="spark spark-two"></span><span class="spark spark-three"></span>
+        </div>
+
+        <div class="hero-tag hero-tag-left-top">Links suspeitos</div>
+        <div class="hero-tag hero-tag-left-bottom">Mensagens</div>
+        <div class="hero-tag hero-tag-right-top">Pix e boletos</div>
+        <div class="hero-tag hero-tag-right-bottom">Anuncios</div>
+
+        <div class="hero-copy">
+          <span class="hero-kicker">Protecao digital inteligente</span>
+          <h1 id="hero-title">Antes de confiar,<br>escaneie.</h1>
+          <p>
+            Analise mensagens, links, Pix e ofertas suspeitas antes de agir. O ScanGolpe identifica sinais de fraude e mostra o que merece sua atencao.
+          </p>
+        </div>
+
         <div class="hero-actions">
-          <a class="primary-action" href="#scanner">Iniciar analise</a>
-          <a class="secondary-action" href="#modelo">Ver como protege</a>
+          <a class="primary-action" href="#scanner">Iniciar analise <span aria-hidden="true">↗</span></a>
+          <a class="secondary-action" href="#modelo">Como protegemos <span aria-hidden="true">→</span></a>
+        </div>
+
+        <div class="hero-trust" aria-label="Resumo do scanner">
+          <span><i></i> Motor de protecao ativo</span>
+          <span>4 camadas de analise</span>
+          <span>Privacidade local</span>
         </div>
       </div>
-
-      <aside class="threat-panel" aria-label="Resumo visual de seguranca">
-        <div class="threat-panel-header">
-          <span>Status do motor</span>
-          <strong>Ativo</strong>
-        </div>
-        <div class="scan-frame" aria-hidden="true">
-          <div class="scan-corner tl"></div>
-          <div class="scan-corner tr"></div>
-          <div class="scan-corner bl"></div>
-          <div class="scan-corner br"></div>
-          <div class="scan-line"></div>
-          <div class="scan-core">
-            <strong>87</strong>
-            <small>sinais ativos</small>
-          </div>
-        </div>
-        <div class="signal-list">
-          <div><span></span> Links encurtados e dominios falsos</div>
-          <div><span></span> Pressao por urgencia ou medo</div>
-          <div><span></span> Pedidos de senha, token, CPF e Pix</div>
-        </div>
-      </aside>
     </section>
 
     <section class="metrics-strip" aria-label="Metricas do sistema">

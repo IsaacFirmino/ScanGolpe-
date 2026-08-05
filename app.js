@@ -609,7 +609,10 @@ async function runAnalysis() {
 function applyTheme(theme) {
   document.documentElement.dataset.theme = theme;
   const isLight = theme === "light";
-  elements.themeLabel.textContent = isLight ? "Tema claro" : "Tema escuro";
+  const nextTheme = isLight ? "escuro" : "claro";
+  elements.themeToggle.setAttribute("aria-pressed", String(!isLight));
+  elements.themeToggle.setAttribute("aria-label", `Ativar tema ${nextTheme}`);
+  elements.themeLabel.textContent = `Ativar tema ${nextTheme}`;
   localStorage.setItem("scangolpe-theme", theme);
 }
 
