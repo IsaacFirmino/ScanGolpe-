@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="ScanGolpe analisa links, mensagens, Pix e ofertas suspeitas com um motor local de deteccao de golpes digitais.">
+  <title>ScanGolpe | Protecao contra golpes digitais</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="app-header">
+    <a class="brand" href="#inicio" aria-label="ScanGolpe inicio">
+      <span class="brand-mark" aria-hidden="true">
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M12 2L4 5v6c0 5.25 3.4 9.74 8 11 4.6-1.26 8-5.75 8-11V5l-8-3z"
+          fill="currentColor"/>
+    <path d="M9.5 12.2l1.8 1.8 3.6-4.2"
+          stroke="var(--bg)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+</span>
+        <strong>ScanGolpe</strong>
+        <small>Defesa antifraude</small>
+      </span>
+    </a>
+
+    <nav class="main-nav" aria-label="Navegacao principal">
+      <a href="#scanner">Scanner</a>
+      <a href="#modelo">Modelo</a>
+      <a href="#defesas">Defesas</a>
+    </nav>
+
+    <div class="header-actions">
+      <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Ativar tema claro" aria-pressed="true">
+        <span class="toggle-knob" aria-hidden="true">
+          <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8Z"/></svg>
+          <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+        </span>
+        <span class="toggle-sun" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+        </span>
+        <span class="sr-only" id="theme-label">Ativar tema claro</span>
+      </button>
+      <a class="header-cta" href="#scanner">Escanear</a>
+    </div>
+  </header>
+
+  <main id="inicio">
+    <section class="hero-section hero-14" aria-labelledby="hero-title">
+      <div class="hero-grid hero-grid-top" aria-hidden="true"></div>
+      <div class="hero-grid hero-grid-bottom" aria-hidden="true"></div>
+      <img class="hero-beam hero-beam-left" src="public/originkit/hero-14/abstract-design.svg" alt="" aria-hidden="true">
+      <img class="hero-beam hero-beam-right" src="public/originkit/hero-14/abstract-design.svg" alt="" aria-hidden="true">
+
+      <div class="hero-content">
+        <div class="hero-emblem" aria-hidden="true">
+          <span class="emblem-orbit orbit-one"></span>
+          <span class="emblem-orbit orbit-two"></span>
+          <span class="emblem-shield">
+            <svg width="62" height="62" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 2L4 5v6c0 5.25 3.4 9.74 8 11 4.6-1.26 8-5.75 8-11V5l-8-3z" fill="currentColor"/>
+              <path d="M8.7 12.2l2.05 2.05 4.55-5.1" stroke="#07110a" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+          <span class="spark spark-one"></span><span class="spark spark-two"></span><span class="spark spark-three"></span>
+        </div>
+
+        <div class="hero-tag hero-tag-left-top">Links suspeitos</div>
+        <div class="hero-tag hero-tag-left-bottom">Mensagens</div>
+        <div class="hero-tag hero-tag-right-top">Pix e boletos</div>
+        <div class="hero-tag hero-tag-right-bottom">Anuncios</div>
+
+        <div class="hero-copy">
+          <span class="hero-kicker">Protecao digital inteligente</span>
+          <h1 id="hero-title">Antes de confiar,<br>escaneie.</h1>
+          <p>
+            Analise mensagens, links, Pix e ofertas suspeitas antes de agir. O ScanGolpe identifica sinais de fraude e mostra o que merece sua atencao.
+          </p>
+        </div>
+
+        <div class="hero-actions">
+          <a class="primary-action" href="#scanner">Iniciar analise <span aria-hidden="true">↗</span></a>
+          <a class="secondary-action" href="#modelo">Como protegemos <span aria-hidden="true">→</span></a>
+        </div>
+
+        <div class="hero-trust" aria-label="Resumo do scanner">
+          <span><i></i> Motor de protecao ativo</span>
+          <span>4 camadas de analise</span>
+          <span>Privacidade local</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="metrics-strip" aria-label="Metricas do sistema">
+      <div>
+        <strong>4 camadas</strong>
+        <span>URL, texto, Pix e comportamento</span>
+      </div>
+      <div>
+        <strong>Local-first</strong>
+        <span>Analise no navegador, sem enviar seus dados</span>
+      </div>
+      <div>
+        <strong>Explicavel</strong>
+        <span>Mostra os sinais que elevaram o risco</span>
+      </div>
+      <div>
+        <strong>Adaptavel</strong>
+        <span>Pronto para evoluir com API e ML real</span>
+      </div>
+    </section>
+
+    <section class="scanner-section" id="scanner">
+      <div class="section-heading">
+        <span class="eyebrow">Scanner ao vivo</span>
+        <h2>Analise o conteudo suspeito</h2>
+        <p>
+          Cole uma mensagem, link, chave Pix, boleto ou anuncio. O resultado indica nivel de risco,
+          confianca da analise, motivos encontrados e proximas acoes recomendadas.
+        </p>
+      </div>
+
+      <div class="scanner-shell">
+        <div class="scanner-tabs" role="tablist" aria-label="Tipo de conteudo para analise">
+          <button class="scan-tab active" type="button" data-tab="mensagem" role="tab" aria-selected="true">Mensagem</button>
+          <button class="scan-tab" type="button" data-tab="link" role="tab" aria-selected="false">Link / URL</button>
+          <button class="scan-tab" type="button" data-tab="pix" role="tab" aria-selected="false">Pix / Dados</button>
+          <button class="scan-tab" type="button" data-tab="anuncio" role="tab" aria-selected="false">Anuncio</button>
+        </div>
+
+        <div class="input-group">
+          <label id="scan-label" for="scan-input">Cole a mensagem suspeita que voce recebeu:</label>
+          <textarea id="scan-input" class="scan-textarea" rows="8" spellcheck="true" placeholder="Ex: Parabens! Voce ganhou R$ 5.000 no Pix. Clique aqui para resgatar: bit.ly/premio"></textarea>
+          <div class="input-meta">
+            <span id="char-count">0 caracteres</span>
+            <span>Atalho: Ctrl + Enter</span>
+          </div>
+        </div>
+
+        <button class="scan-button" id="scan-button" type="button">
+          <span class="button-icon" aria-hidden="true"></span>
+          Iniciar varredura
+        </button>
+
+        <section class="result-card" id="result-card" aria-live="polite" aria-hidden="true"></section>
+      </div>
+    </section>
+
+    <section class="model-section" id="modelo">
+      <div class="section-heading">
+        <span class="eyebrow">Modelo de protecao</span>
+        <h2>Um motor multicamada contra golpes baixos e altos</h2>
+        <p>
+          Nesta versao estatica, o ScanGolpe usa um modelo local de pontuacao ponderada e explicavel.
+          Para uma operacao comercial, a proxima etapa natural e conectar uma API com machine learning treinado,
+          reputacao de dominios e base colaborativa de denuncias.
+        </p>
+      </div>
+
+      <div class="model-grid">
+        <article>
+          <span>01</span>
+          <h3>Normalizacao inteligente</h3>
+          <p>Compara texto com e sem acentos, detecta maiusculas excessivas, urgencia e repeticao emocional.</p>
+        </article>
+        <article>
+          <span>02</span>
+          <h3>Analise de URL</h3>
+          <p>Verifica HTTPS, IP direto, encurtadores, TLDs arriscados e dominios que imitam bancos ou marcas conhecidas.</p>
+        </article>
+        <article>
+          <span>03</span>
+          <h3>Engenharia social</h3>
+          <p>Procura combinacoes perigosas: premio, dinheiro, medo, bloqueio de conta, senha, token, CPF e Pix.</p>
+        </article>
+        <article>
+          <span>04</span>
+          <h3>Resposta orientada</h3>
+          <p>Entrega uma acao clara: bloquear, verificar canal oficial, evitar pagamento ou preservar evidencias.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="defense-section" id="defesas">
+      <div class="section-heading">
+        <span class="eyebrow">Melhorias de seguranca</span>
+        <h2>Feito para proteger pessoas reais</h2>
+      </div>
+
+      <div class="defense-layout">
+        <div class="defense-copy">
+          <h3>Menos promessa vazia, mais decisao segura.</h3>
+          <p>
+            O scanner nao diz apenas "seguro" ou "golpe". Ele mostra por que chegou ao resultado,
+            mede confianca e orienta o usuario para confirmar por canais oficiais. Isso reduz tanto golpes obvios
+            quanto ataques convincentes que usam marcas conhecidas.
+          </p>
+        </div>
+        <ul class="check-list">
+          <li>Alertas mais severos quando ha link, dinheiro e urgencia no mesmo conteudo.</li>
+          <li>Deteccao de dominios parecidos com bancos, marketplaces e redes sociais.</li>
+          <li>Mensagens de baixo risco ainda mostram cuidados basicos para evitar falsa sensacao de seguranca.</li>
+          <li>Interface com tema claro/escuro, acessivel e preparada para uso em celular.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="plans-section" id="planos">
+      <div class="section-heading centered">
+        <span class="eyebrow">Evolucao do produto</span>
+        <h2>Proximo passo para virar uma plataforma</h2>
+      </div>
+
+      <div class="plans-grid">
+        <article class="plan-card">
+          <h3>Versao atual</h3>
+          <strong>Local</strong>
+          <p>Boa para demonstracao, prototipo, estudo e uso privado sem enviar dados sensiveis.</p>
+          <ul>
+            <li>Motor explicavel no navegador</li>
+            <li>Tema claro e escuro</li>
+            <li>Sem dependencia de servidor</li>
+          </ul>
+        </article>
+        <article class="plan-card featured">
+          <h3>Versao recomendada</h3>
+          <strong>ML + inteligencia de ameacas</strong>
+          <p>Ideal para clientes finais, empresas e operacao com base de golpes em constante atualizacao.</p>
+          <ul>
+            <li>API com modelo treinado</li>
+            <li>Reputacao de dominio em tempo real</li>
+            <li>Base colaborativa de denuncias</li>
+          </ul>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <footer class="app-footer">
+    <strong>ScanGolpe</strong>
+    <span>Antes de confiar, escaneie. Desenvolvido por Isaac Firmino e Isabelle.</span>
+  </footer>
+
+  <script src="app.js" defer></script>
+</body>
+</html>
