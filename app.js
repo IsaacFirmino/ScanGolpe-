@@ -19,6 +19,7 @@ const tabConfig = {
 
 let knownBrands = [];
 let safeDomains = [];
+let confirmedScamDomains = [];
 
 const rules = [
   {
@@ -88,7 +89,8 @@ const urlRules = {
 
 const state = {
   currentTab: "mensagem",
-  running: false
+  running: false,
+  currentAnalysis: null
 };
 
 const elements = {
@@ -130,6 +132,11 @@ function getRegistrableHint(hostname) {
 function isSafeDomain(hostname) {
   const clean = hostname.replace(/^www\./, "");
   return safeDomains.some((domain) => clean === domain || clean.endsWith(`.${domain}`));
+}
+
+function getConfirmedScamDomain(hostname) {
+  const clean = hostname.replace(/^www\./, "").toLowerCase();
+  return confirmedScamDomains.find(({ domain }) => clean === domain || clean.endsWith(`.${domain}`));
 }
 
 function levenshteinDistance(a, b) {
@@ -209,6 +216,21 @@ function analyzeUrls(urls, signals) {
   urls.forEach((url) => {
     const hostname = url.hostname.toLowerCase();
     const href = url.href.toLowerCase();
+    const confirmedScam = getConfirmedScamDomain(hostname);
+
+    if (confirmedScam) {
+      const categoryDetail = confirmedScam.category
+        ? ` Categoria cadastrada: ${confirmedScam.category}.`
+        : "";
+
+      addSignal(signals, {
+        id: `dominio_confirmado_${confirmedScam.domain}`,
+        label: "Dominio confirmado na base de golpes",
+        detail: `O dominio ${confirmedScam.domain} foi confirmado como suspeito na base colaborativa.${categoryDetail}`,
+        severity: "critical",
+        weight: 40
+      });
+    }
 
     if (url.protocol !== "https:") {
       addSignal(signals, {
@@ -497,7 +519,8 @@ function buildResult({ risk, score, confidence, signals, urls, type }) {
       weight: 0
     }],
     urlCount: urls.length,
-    type
+    type,
+    domain: urls[0]?.hostname?.toLowerCase() || null
   };
 }
 
