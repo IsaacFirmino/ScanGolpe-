@@ -559,9 +559,14 @@ function renderResult(result) {
       <div>
         <h3>Protocolo recomendado</h3>
         <ul class="next-actions">${actionMarkup}</ul>
+        <button class="report-button" id="report-button" type="button">Denunciar este golpe</button>
+        <span class="report-status" id="report-status" aria-live="polite"></span>
       </div>
     </div>
   `;
+
+  document.getElementById("report-button")
+    ?.addEventListener("click", () => reportGolpe(result));
 }
 
 function escapeHtml(value) {
@@ -625,7 +630,8 @@ async function runAnalysis() {
   await new Promise((resolve) => setTimeout(resolve, 650));
 
   const result = analyzeContent(input, type);
-  renderResult(result);
+  state.currentAnalysis = { ...result, content: input };
+  renderResult(state.currentAnalysis);
   setLoading(false);
 }
 
@@ -664,6 +670,46 @@ function bindEvents() {
   });
 }
 
+async function loadConfirmedScamDomains() {
+  if (!window.supabaseClient) return;
+  try {
+    const { data, error } = await window.supabaseClient
+      .from("dominios_golpe")
+      .select("dominio, categoria")
+      .eq("confirmado", true);
+    if (error) throw error;
+    confirmedScamDomains = (data || []).map((row) => ({
+      domain: row.dominio.toLowerCase(),
+      category: row.categoria
+    }));
+  } catch (error) {
+    console.warn("Falha ao carregar dominios confirmados do Supabase.", error);
+  }
+}
+
+async function reportGolpe(analysis) {
+  const btn = document.getElementById("report-button");
+  const status = document.getElementById("report-status");
+  if (!window.supabaseClient) {
+    status.textContent = "Denúncia indisponível agora.";
+    return;
+  }
+
+  btn.disabled = true;
+  const { error } = await window.supabaseClient.from("relatos_golpe").insert({
+    tipo: analysis.type,
+    conteudo: analysis.content,
+    dominio: analysis.domain,
+    risco: analysis.risk,
+    confianca: analysis.confidence
+  });
+
+  status.textContent = error
+    ? "Não foi possível enviar agora. Tente novamente mais tarde."
+    : "Denúncia enviada — obrigado por ajudar outras pessoas!";
+  if (error) btn.disabled = false;
+}
+
 async function loadBrands() {
   try {
     setLoading(true);
@@ -686,7 +732,7 @@ async function init() {
   initTheme();
   bindEvents();
   updateCharacterCount();
-  await loadBrands();
+  await Promise.all([loadBrands(), loadConfirmedScamDomains()]);
 }
 
 init();

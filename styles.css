@@ -567,6 +567,41 @@ h3 {
   opacity: 0.72;
 }
 
+.report-button {
+  display: inline-flex;
+  width: 100%;
+  min-height: 52px;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 18px;
+  padding: 0 18px;
+  border-radius: 18px;
+  border: 1px solid rgba(220, 252, 84, 0.35);
+  background: rgba(220, 252, 84, 0.08);
+  color: var(--acid);
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.18s ease, transform 0.15s ease, border-color 0.18s ease;
+}
+
+.report-button:hover {
+  background: rgba(220, 252, 84, 0.16);
+  transform: translateY(-1px);
+}
+
+.report-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.report-status {
+  display: block;
+  margin-top: 10px;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
 .button-icon {
   width: 18px;
   height: 18px;
