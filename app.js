@@ -41,10 +41,10 @@ const rules = [
   {
     id: "pedido_dados",
     label: "Pedido de dados sensiveis",
-    detail: "Senhas, tokens, codigos, CPF, cartao e dados bancarios nunca devem ser enviados por mensagem ou link externo.",
+    detail: "O alerta considera um pedido para enviar, informar ou confirmar dados. A simples mencao a CPF, conta ou cartao nao e suficiente.",
     severity: "high",
     weight: 20,
-    pattern: /\b(cpf|rg|senha|token|codigo|codigos|cartao|cvv|conta|agencia|biometria|selfie)\b/i
+    pattern: /\b(informe|envie|mande|digite|confirme|passe|compartilhe|valide|atualize|forneca).{0,55}\b(cpf|rg|senha|token|codigo|codigos|cartao|cvv|conta|agencia|biometria|selfie|documento)\b|\b(cpf|rg|senha|token|codigo|codigos|cartao|cvv|conta|agencia|biometria|selfie|documento).{0,55}\b(informe|envie|mande|digite|confirme|passe|compartilhe|valide|atualize|forneca)\b/i
   },
   {
     id: "urgencia",
@@ -55,12 +55,12 @@ const rules = [
     pattern: /\b(urgente|agora|imediato|hoje|ultim[ao] chance|expira|vence hoje|em ate \d+ minutos?|prazo final)\b/i
   },
   {
-    id: "pagamento_pix",
+    id: "pagamento_direcionado",
     label: "Pagamento por Pix em contexto sensivel",
-    detail: "Pix e irreversivel na maioria dos casos; ofertas com pressa e Pix exigem cuidado reforcado.",
-    severity: "medium",
-    weight: 13,
-    pattern: /\b(pix|chave pix|copia e cola|qr code|pagamento imediato|transferencia)\b/i
+    detail: "O alerta exige uma instrucao de pagamento ou transferencia; citar Pix por si so nao caracteriza golpe.",
+    severity: "high",
+    weight: 16,
+    pattern: /\b(me\s+(faz|mande|manda|envie|envia)|faca|pague|deposite|transfira|realize|efetue|pagar|depositar|transferir).{0,60}\b(pix|chave pix|copia e cola|qr code|transferencia)\b|\b(pix|chave pix|copia e cola|qr code|transferencia).{0,60}\b(agora|hoje|urgente|imediato|para este numero|para essa chave|para minha conta)\b/i
   },
   {
     id: "oferta_irreal",
@@ -77,6 +77,54 @@ const rules = [
     severity: "medium",
     weight: 10,
     pattern: /\b(whatsapp|telegram|direct|dm|inbox).{0,35}(banco|senha|token|pix|pagamento|conta)\b/i
+  },
+  {
+    id: "troca_numero_whatsapp",
+    label: "Possivel golpe do novo numero",
+    detail: "Criminosos podem se passar por familiares e pedir Pix alegando troca de numero. Confirme por ligacao ou contato conhecido.",
+    severity: "high",
+    weight: 18,
+    pattern: /\b(troquei|mudei|esse e|este e|salva ai).{0,45}\b(novo numero|numero novo|novo whatsapp|novo contato)\b|\b(novo numero|numero novo|novo whatsapp|novo contato).{0,45}\b(pix|transferencia|dinheiro|preciso)\b/i
+  },
+  {
+    id: "falsa_central",
+    label: "Possivel falsa central de atendimento",
+    detail: "Alertas sobre compra suspeita ou bloqueio, acompanhados de pedido de codigo ou dados, costumam imitar bancos e empresas.",
+    severity: "high",
+    weight: 18,
+    pattern: /\b(central de (seguranca|atendimento)|compra (suspeita|nao reconhecida)|movimentacao (suspeita|nao reconhecida)|acesso (suspeito|bloqueado)).{0,90}\b(codigo|senha|token|confirm|ligue|whatsapp)\b/i
+  },
+  {
+    id: "aluguel_adiantado",
+    label: "Pagamento antecipado em anuncio de aluguel",
+    detail: "Sinal, reserva ou deposito antes de visitar e validar o imovel pode indicar anuncio falso. Confirme anuncio, proprietario e imovel presencialmente.",
+    severity: "high",
+    weight: 18,
+    pattern: /\b(aluguel|alugar|imovel|apartamento|casa para alugar).{0,100}\b(sinal|reserva|deposito|pix|transferencia|adiantad[oa])\b|\b(sinal|reserva|deposito|pix|transferencia|adiantad[oa]).{0,100}\b(aluguel|alugar|imovel|apartamento|casa)\b/i
+  },
+  {
+    id: "marketplace_fora_plataforma",
+    label: "Possivel pagamento fora da plataforma",
+    detail: "Em anuncios, pagamento por fora, taxa de liberacao ou conversa externa podem remover as protecoes da plataforma.",
+    severity: "high",
+    weight: 18,
+    pattern: /\b(mercado livre|shopee|aliexpress|olx|shein|amazon).{0,120}\b(pix|transferencia|taxa|fora da plataforma|whatsapp|liberar venda)\b|\b(pix|transferencia|taxa|fora da plataforma|whatsapp|liberar venda).{0,120}\b(mercado livre|shopee|aliexpress|olx|shein|amazon)\b/i
+  },
+  {
+    id: "aposta_retorno_garantido",
+    label: "Promessa de retorno garantido em aposta ou cassino",
+    detail: "Nenhuma aposta ou cassino pode garantir lucro. Nao deposite com base em promessa de retorno, saque imediato ou risco zero.",
+    severity: "high",
+    weight: 20,
+    pattern: /\b(bet|aposta|cassino|casa de apostas|jogo).{0,100}\b(retorno garantido|lucro garantido|sem risco|dobr[ae]|ganho certo|saque imediato)\b|\b(retorno garantido|lucro garantido|sem risco|dobr[ae]|ganho certo|saque imediato).{0,100}\b(bet|aposta|cassino|casa de apostas|jogo)\b/i
+  },
+  {
+    id: "extorsao_ameaca",
+    label: "Possivel extorsao ou ameaca",
+    detail: "Ameacas com pedido de dinheiro exigem cuidado imediato. Nao negocie sob pressao; preserve provas e procure ajuda oficial se houver risco real.",
+    severity: "critical",
+    weight: 32,
+    pattern: /\b(estou com (seu|sua)|seu filho|sua filha|sequestr|ameaca|vou te matar|faca um pix|pague para nao|dinheiro ou).{0,100}\b(pix|transferencia|dinheiro|agora)\b|\b(pix|transferencia|dinheiro).{0,100}\b(seu filho|sua filha|sequestr|ameaca|vou te matar)\b/i
   }
 ];
 
@@ -105,12 +153,27 @@ const elements = {
 };
 
 function normalizeText(value) {
-  return value
+  const normalized = value
     .toLowerCase()
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
     .replace(/[^\S\r\n]+/g, " ")
     .trim();
+
+  // Corrige apenas formas frequentes de ofuscacao em golpes. A conversao
+  // global de numeros quebraria CPF, chaves Pix e valores monetarios.
+  return normalized
+    .replace(/\bp[1il][xk]\b/gi, "pix")
+    .replace(/\burg[3e]nte\b/gi, "urgente")
+    .replace(/\bn[0o]v[0o]\b/gi, "novo")
+    .replace(/\bc[0o]d[1i]g[0o]\b/gi, "codigo")
+    .replace(/\bsenh[4a]\b/gi, "senha")
+    .replace(/\bv[3e]r[1i]f[1i]c[4a]r\b/gi, "verificar")
+    .replace(/\btr[4a]nsferenc[1i][4a]\b/gi, "transferencia")
+    .replace(/\bpr[3e]m[1i][0o]\b/gi, "premio")
+    .replace(/\bb[4a]nc[0o]\b/gi, "banco")
+    .replace(/\bbl[0o]que[1i][0o]\b/gi, "bloqueio")
+    .replace(/\b[4a]tu[4a]l[1i]z[4a]r\b/gi, "atualizar");
 }
 
 function extractUrls(rawText) {
@@ -125,8 +188,21 @@ function extractUrls(rawText) {
   }).filter(Boolean);
 }
 
+function getRegistrableDomain(hostname) {
+  const labels = hostname.toLowerCase().replace(/^www\./, "").split(".").filter(Boolean);
+  if (labels.length <= 2) return labels.join(".");
+
+  // O projeto nao usa bundler. Esta lista cobre sufixos brasileiros comuns
+  // sem transformar "www.nubank.com.br" em uma URL suspeita por ter 4 partes.
+  const twoPartSuffixes = new Set(["com.br", "net.br", "org.br", "gov.br", "edu.br", "jus.br", "leg.br", "mil.br", "com.mx", "co.uk"]);
+  const suffix = labels.slice(-2).join(".");
+  return twoPartSuffixes.has(suffix) && labels.length >= 3
+    ? labels.slice(-3).join(".")
+    : labels.slice(-2).join(".");
+}
+
 function getRegistrableHint(hostname) {
-  return hostname.replace(/^www\./, "").replace(/[^a-z0-9]/gi, "");
+  return getRegistrableDomain(hostname).replace(/\.[a-z]{2,}$/i, "").replace(/[^a-z0-9]/gi, "");
 }
 
 function isSafeDomain(hostname) {
@@ -169,18 +245,19 @@ function detectBrandSpoof(hostname) {
   for (const brand of knownBrands) {
     const compactBrand = brand.replace(/[^a-z0-9]/g, "");
     
-    // 1. Exact inclusion (e.g. nubank in nubank-verificacao)
+    // 1. Marca no dominio registravel (ex.: nubank-verificacao.com.br).
     if (clean.includes(compactBrand)) {
       detectedBrand = brand;
       spoofType = 'exact';
-      
-      // Check if it's a deceptive subdomain (e.g. nubank.suporte.com)
-      const parts = hostname.split('.');
-      if (parts.length > 2) {
-         const subdomainParts = parts.slice(0, -2);
-         if (subdomainParts.some(p => p.includes(compactBrand))) {
-            spoofType = 'subdomain';
-         }
+
+      // Marca em subdominio de outro site (ex.: nubank.suporte-exemplo.com).
+      const registrable = getRegistrableDomain(hostname);
+      const normalizedHostname = hostname.toLowerCase();
+      const subdomain = normalizedHostname.endsWith(registrable)
+        ? normalizedHostname.slice(0, -registrable.length).replace(/\.$/, "")
+        : "";
+      if (subdomain.replace(/[^a-z0-9]/gi, "").includes(compactBrand)) {
+        spoofType = 'subdomain';
       }
       break;
     }
@@ -217,6 +294,7 @@ function analyzeUrls(urls, signals) {
     const hostname = url.hostname.toLowerCase();
     const href = url.href.toLowerCase();
     const confirmedScam = getConfirmedScamDomain(hostname);
+    const knownSafeDomain = isSafeDomain(hostname);
 
     if (confirmedScam) {
       const categoryDetail = confirmedScam.category
@@ -228,7 +306,8 @@ function analyzeUrls(urls, signals) {
         label: "Dominio confirmado na base de golpes",
         detail: `O dominio ${confirmedScam.domain} foi confirmado como suspeito na base colaborativa.${categoryDetail}`,
         severity: "critical",
-        weight: 40
+        weight: 40,
+        source: "external-confirmed"
       });
     }
 
@@ -272,19 +351,19 @@ function analyzeUrls(urls, signals) {
       });
     }
 
-    if (urlRules.suspiciousWords.test(href)) {
+    if (!knownSafeDomain && urlRules.suspiciousWords.test(href)) {
       addSignal(signals, {
         id: "url_palavras_sensiveis",
         label: "URL usa termos de login, suporte ou verificacao",
-        detail: "Termos como login, seguranca, atualizar e desbloquear sao comuns em paginas falsas.",
+        detail: "Termos como login, seguranca, atualizar e desbloquear exigem verificacao quando o dominio nao e reconhecido como oficial.",
         severity: "medium",
         weight: 11
       });
     }
 
-    // Structure Checks
+    // Estrutura suspeita so pesa em dominios que nao constam como oficiais.
     const hyphenCount = (hostname.match(/-/g) || []).length;
-    if (hyphenCount >= 3) {
+    if (!knownSafeDomain && hyphenCount >= 3) {
       addSignal(signals, {
         id: "excesso_hifens",
         label: "URL com excesso de hifens",
@@ -295,24 +374,13 @@ function analyzeUrls(urls, signals) {
     }
 
     const numberCount = (hostname.match(/\d/g) || []).length;
-    if (numberCount >= 4) {
+    if (!knownSafeDomain && numberCount >= 4) {
       addSignal(signals, {
         id: "excesso_numeros",
         label: "URL com excesso de numeros",
         detail: "Dominios com muitos numeros gerados aleatoriamente indicam baixa confiabilidade.",
         severity: "medium",
         weight: 10
-      });
-    }
-
-    const partsCount = hostname.split('.').length;
-    if (partsCount >= 4) {
-      addSignal(signals, {
-        id: "excesso_subdominios",
-        label: "URL com muitos subdominios",
-        detail: "Dominios verdadeiros geralmente sao curtos. Excesso de subdominios pode tentar esconder a origem real do site.",
-        severity: "medium",
-        weight: 12
       });
     }
 
@@ -341,8 +409,28 @@ function analyzeUrls(urls, signals) {
       });
     }
 
-    // TODO (Backend): Integrar API de reputacao de dominio (ex: Google Safe Browsing / PhishTank) aqui em versoes futuras.
+    // A reputacao externa e aplicada depois pela Edge Function. Esta camada
+    // local continua funcionando quando o provedor estiver indisponivel.
   });
+}
+
+function calculateRisk(signals) {
+  const rawScore = signals.reduce((sum, signal) => sum + signal.weight, 0);
+  const score = Math.min(100, rawScore);
+  const criticalSignals = signals.filter((signal) => signal.severity === "critical").length;
+  const highSignals = signals.filter((signal) => signal.severity === "high").length;
+  const externalConfirmation = signals.some((signal) => signal.source === "external-confirmed");
+
+  let risk = "low";
+  if (externalConfirmation || criticalSignals > 0 || score >= 78) {
+    risk = "critical";
+  } else if (score >= 45 || highSignals >= 2) {
+    risk = "high";
+  } else if (score >= 18) {
+    risk = "medium";
+  }
+
+  return { risk, score, externalConfirmation };
 }
 
 function analyzeContent(rawText, type) {
@@ -381,37 +469,38 @@ function analyzeContent(rawText, type) {
   }
 
   const hasMoney = /r\$\s?[\d.,]+|\b\d+[,.]\d{2}\b/.test(normalized);
+  const hasPixReference = /\b(pix|chave pix|copia e cola|qr code|transferencia)\b/i.test(normalized);
   const hasUrgency = signals.some((signal) => signal.id === "urgencia");
-  const hasSensitiveData = signals.some((signal) => signal.id === "pedido_dados");
-  const hasPix = signals.some((signal) => signal.id === "pagamento_pix");
+  const hasSensitiveDataRequest = signals.some((signal) => signal.id === "pedido_dados");
+  const hasPaymentRequest = signals.some((signal) => signal.id === "pagamento_direcionado");
 
   if (urls.length > 0 && hasMoney && hasUrgency) {
     addSignal(signals, {
       id: "combo_link_dinheiro_urgencia",
-      label: "Combinacao link + dinheiro + urgencia",
-      detail: "Esse trio e um dos padroes mais fortes de golpe digital.",
-      severity: "critical",
-      weight: 30
+      label: "Link com dinheiro e urgencia",
+      detail: "Link, valor financeiro e pressa formam uma combinacao comum em golpes. Confirme o destino por canal oficial.",
+      severity: "high",
+      weight: 24
     });
   }
 
-  if (hasPix && hasUrgency && hasMoney) {
+  if (hasPaymentRequest && hasUrgency && hasMoney) {
     addSignal(signals, {
       id: "pix_pressao",
-      label: "Pix com pressao para pagamento",
-      detail: "Pagamentos via Pix sob pressao devem ser interrompidos ate confirmacao por canal oficial.",
+      label: "Pagamento com pressao para agir",
+      detail: "Nao faca Pix ou transferencia sob pressao. Confirme a identidade por um contato conhecido ou canal oficial.",
       severity: "high",
       weight: 20
     });
   }
 
-  if (urls.length > 0 && hasSensitiveData) {
+  if (urls.length > 0 && hasSensitiveDataRequest) {
     addSignal(signals, {
       id: "link_pede_dados",
-      label: "Link associado a dados sensiveis",
-      detail: "Quando uma mensagem junta link com senha, token, CPF ou cartao, o risco de phishing sobe bastante.",
-      severity: "critical",
-      weight: 26
+      label: "Link associado a pedido de dados",
+      detail: "Uma mensagem que une link e pedido de senha, token, codigo ou documento merece verificacao rigorosa.",
+      severity: "high",
+      weight: 24
     });
   }
 
@@ -425,109 +514,125 @@ function analyzeContent(rawText, type) {
     });
   }
 
-  if (type === "pix" && hasPix && hasMoney && !urls.length && !hasUrgency) {
+  if (type === "pix" && hasPixReference && !hasPaymentRequest && !urls.length && !hasUrgency) {
     addSignal(signals, {
       id: "pix_neutro",
-      label: "Pedido de Pix exige confirmacao externa",
-      detail: "Mesmo sem sinais fortes de golpe, confirme nome, valor e destinatario no aplicativo oficial.",
+      label: "Dados de pagamento exigem confirmacao externa",
+      detail: "A simples presenca de uma chave Pix nao confirma golpe. Antes de pagar, confira nome, valor e destinatario no aplicativo oficial.",
       severity: "low",
       weight: 6
     });
   }
 
-  const rawScore = signals.reduce((sum, signal) => sum + signal.weight, 0);
-  const score = Math.min(100, rawScore);
-  const criticalSignal = signals.some((signal) => signal.severity === "critical");
-  const highSignals = signals.filter((signal) => signal.severity === "high").length;
-
-  let risk = "low";
-  if (score >= 72 || criticalSignal) {
-    risk = "critical";
-  } else if (score >= 45 || highSignals >= 2) {
-    risk = "high";
-  } else if (score >= 18) {
-    risk = "medium";
-  }
-
-  const confidence = Math.min(96, Math.max(42, score + signals.length * 8));
-
-  return buildResult({ risk, score, confidence, signals, urls, type });
+  return buildResult({ ...calculateRisk(signals), signals, urls, type });
 }
 
-function buildResult({ risk, score, confidence, signals, urls, type }) {
+function buildResult({ risk, score, externalConfirmation, signals, urls, type }) {
   const levels = {
     low: {
       className: "risk-low",
       label: "Baixo risco",
-      title: "Nenhum indicador de fraude detectado",
-      summary: "Varredura concluída sem padrões relevantes. O motor não identificou combinações de risco conhecidas nesta amostra. Ainda assim, confirme por canal oficial antes de transferir dinheiro ou fornecer dados.",
+      title: "Nenhum sinal forte detectado",
+      summary: "A varredura nao identificou combinacoes conhecidas de alto risco nesta amostra. Isso nao confirma que a mensagem ou link seja seguro; confirme por canal oficial antes de transferir dinheiro ou fornecer dados.",
       actions: [
-        "Nunca compartilhe senhas, tokens ou códigos fora do app oficial.",
+        "Nunca compartilhe senhas, tokens ou codigos fora do app oficial.",
         "Confirme qualquer pagamento diretamente no aplicativo do banco.",
-        "Em caso de dúvida, contate a empresa pelo número do verso do cartão ou site oficial."
+        "Em caso de duvida, contate a empresa pelo numero do verso do cartao ou site oficial."
       ]
     },
     medium: {
       className: "risk-medium",
-      label: "Atenção",
-      title: "Indicadores suspeitos detectados — verificação necessária",
-      summary: "A varredura identificou elementos frequentemente associados a fraudes. Nível insuficiente para classificar como golpe confirmado, mas exige confirmação antes de qualquer ação.",
+      label: "Atencao",
+      title: "Indicadores suspeitos detectados — verificacao necessaria",
+      summary: "A varredura identificou elementos associados a fraudes. O resultado e uma triagem, nao uma confirmacao definitiva; valide antes de qualquer acao.",
       actions: [
         "Verifique o remetente por outro canal antes de responder.",
-        "Acesse o site oficial digitando o endereço manualmente, não use o link recebido.",
-        "Suspenda qualquer Pix ou transferência até validar identidade e motivo."
+        "Acesse o site oficial digitando o endereco manualmente, nao use o link recebido.",
+        "Suspenda qualquer Pix ou transferencia ate validar identidade e motivo."
       ]
     },
     high: {
       className: "risk-high",
       label: "Alto risco",
-      title: "Múltiplos sinais de alto risco detectados",
-      summary: "Padrões críticos de engenharia social, phishing ou pagamento fraudulento identificados. Interrompa qualquer ação em andamento e acione canal oficial.",
+      title: "Multiplos sinais de alto risco detectados",
+      summary: "Foram encontrados padroes fortes de engenharia social, phishing ou pagamento sob pressao. Interrompa a acao e valide pelo canal oficial.",
       actions: [
-        "Não clique em links, não forneça dados e não efetue pagamentos.",
-        "Bloqueie o contato se houver pressão contínua.",
-        "Se dados já foram fornecidos, contate seu banco imediatamente."
+        "Nao clique em links, nao forneca dados e nao efetue pagamentos.",
+        "Bloqueie o contato se houver pressao continua.",
+        "Se dados ja foram fornecidos, contate seu banco imediatamente."
       ]
     },
     critical: {
       className: "risk-critical",
-      label: "Risco crítico",
-      title: "Combinação de alto risco confirmada — trate como fraude",
-      summary: "O motor detectou combinações de máxima severidade: domínio fraudulento, solicitação de dados sensíveis, urgência ou promessa de dinheiro em conjunto. Trate como golpe até comprovação contrária.",
+      label: "Risco muito alto",
+      title: "Indicios fortes de fraude — trate como suspeita de golpe",
+      summary: "O motor encontrou uma combinacao de alta severidade. Heuristicas nao substituem uma investigacao, mas voce deve interromper a interacao ate comprovar a legitimidade pelo canal oficial.",
       actions: [
-        "Encerre a conversa ou feche a página sem interagir.",
+        "Encerre a conversa ou feche a pagina sem interagir.",
         "Acione banco, operadora ou empresa pelo canal oficial verificado.",
-        "Preserve capturas de tela e registre denúncia se houve perda financeira."
+        "Preserve capturas de tela e registre denuncia se houve perda financeira."
       ]
     }
   };
 
   const selected = levels[risk];
-  const topSignals = signals
+  const topSignals = [...signals]
     .sort((a, b) => b.weight - a.weight)
     .slice(0, 5);
+  const hasExtortionSignal = signals.some((signal) => signal.id === "extorsao_ameaca");
+  const hasAnySignal = signals.length > 0;
+  const title = risk === "low" && hasAnySignal
+    ? "Poucos sinais detectados — confirme antes de agir"
+    : selected.title;
+  const summary = externalConfirmation
+    ? "Uma fonte externa de reputacao classificou pelo menos uma URL como ameaca. Ainda assim, nao interaja com o link e confirme qualquer comunicacao pelo canal oficial."
+    : selected.summary;
+  const actions = hasExtortionSignal
+    ? [
+        "Nao responda, nao negocie e nao envie dinheiro sob pressao.",
+        "Preserve capturas, numeros, links e comprovantes sem apagar a conversa.",
+        "Se houver risco imediato a sua seguranca, procure o canal oficial de emergencia da sua regiao."
+      ]
+    : selected.actions;
 
   return {
     ...selected,
     risk,
     score,
-    confidence,
+    title,
+    summary,
+    actions,
+    externalConfirmation: Boolean(externalConfirmation),
+    indicatorCount: signals.length,
     signals: topSignals.length ? topSignals : [{
       label: "Sem indicadores detectados",
-      detail: "O motor de varredura não encontrou padrões relevantes nesta amostra.",
+      detail: "O motor de varredura nao encontrou padroes relevantes nesta amostra.",
       severity: "low",
       weight: 0
     }],
+    urls,
     urlCount: urls.length,
     type,
     domain: urls[0]?.hostname?.toLowerCase() || null
   };
 }
 
+function renderOnlineStatus(result) {
+  if (result.onlineStatus === "checked") {
+    return '<span class="online-badge" title="URLs verificadas por uma fonte externa de reputacao">✓ Verificacao online concluida</span>';
+  }
+  if (result.onlineStatus === "partial") {
+    return '<span class="online-badge online-badge-warning" title="Parte das URLs nao pode ser verificada online">! Verificacao online parcial</span>';
+  }
+  if (result.onlineStatus === "unavailable") {
+    return '<span class="online-badge online-badge-unavailable" title="A analise abaixo usa apenas indicadores locais">! Verificacao online indisponivel</span>';
+  }
+  return "";
+}
+
 function renderResult(result) {
   elements.result.className = `result-card show ${result.className}`;
   elements.result.setAttribute("aria-hidden", "false");
-  elements.result.style.setProperty("--confidence", `${result.confidence}%`);
 
   const signalMarkup = result.signals.map((signal) => `
     <div class="signal-item">
@@ -537,17 +642,19 @@ function renderResult(result) {
   `).join("");
 
   const actionMarkup = result.actions.map((action) => `<li>${escapeHtml(action)}</li>`).join("");
+  const indicatorLabel = result.indicatorCount === 1 ? "indicio" : "indicios";
 
   elements.result.innerHTML = `
     <div class="result-top">
       <div>
         <span class="risk-label"><span class="risk-dot"></span>${escapeHtml(result.label)}</span>
+        ${renderOnlineStatus(result)}
         <h3 class="risk-title">${escapeHtml(result.title)}</h3>
       </div>
-      <div class="confidence-ring" aria-label="Confiança da análise ${result.confidence}%">
+      <div class="indicator-count" aria-label="${result.indicatorCount} ${indicatorLabel} encontrados">
         <div>
-          <strong>${result.confidence}%</strong>
-          <span>conf.</span>
+          <strong>${result.indicatorCount}</strong>
+          <span>${indicatorLabel}</span>
         </div>
       </div>
     </div>
@@ -614,6 +721,89 @@ function setLoading(isLoading) {
   elements.button.lastChild.textContent = isLoading ? " Varrendo ameaças..." : " Iniciar varredura";
 }
 
+async function checkUrlsOnline(urls) {
+  if (!Array.isArray(urls) || urls.length === 0) {
+    return { status: "not-requested", results: [] };
+  }
+
+  if (!window.supabaseClient) {
+    return {
+      status: "unavailable",
+      results: [],
+      message: "A verificacao externa nao esta configurada. O resultado usa somente indicadores locais."
+    };
+  }
+
+  // Extrai apenas os hrefs e limita a 5, igual ao limite da Edge Function.
+  const list = urls.map((u) => u.href).slice(0, 5);
+  try {
+    const { data, error } = await window.supabaseClient.functions.invoke("scan-url", {
+      body: { urls: list }
+    });
+    if (error) {
+      return {
+        status: "unavailable",
+        results: [],
+        message: "A verificacao externa esta indisponivel no momento. O resultado usa somente indicadores locais."
+      };
+    }
+
+    const results = Array.isArray(data?.results) ? data.results : [];
+    if (results.length === 0) {
+      return {
+        status: "unavailable",
+        results: [],
+        message: "A verificacao externa nao retornou uma resposta valida. O resultado usa somente indicadores locais."
+      };
+    }
+
+    const unavailableCount = results.filter((entry) => entry?.safe !== true && entry?.safe !== false).length;
+    return {
+      status: unavailableCount > 0 ? "partial" : "checked",
+      results,
+      message: unavailableCount > 0
+        ? "Parte das URLs nao pode ser verificada online; os demais sinais continuam sendo locais."
+        : "URLs verificadas por uma fonte externa de reputacao."
+    };
+  } catch {
+    return {
+      status: "unavailable",
+      results: [],
+      message: "A verificacao externa esta indisponivel no momento. O resultado usa somente indicadores locais."
+    };
+  }
+}
+
+function mergeOnlineSignals(result, onlineResults) {
+  const trustLabel = {
+    MALWARE: "Malware confirmado",
+    SOCIAL_ENGINEERING: "Phishing confirmado pelo Google",
+    UNWANTED_SOFTWARE: "Software indesejado confirmado",
+    POTENTIALLY_HARMFUL_APPLICATION: "Aplicativo potencialmente perigoso"
+  };
+
+  onlineResults.forEach((entry) => {
+    if (entry.safe === false) {
+      addSignal(result.signals, {
+        id: `gsb_${entry.threatType}_${entry.url}`,
+        label: `Google Safe Browsing: ${trustLabel[entry.threatType] || entry.threatType}`,
+        detail: `A URL ${entry.url} foi classificada como ${entry.threatType} pela base do Google Safe Browsing.`,
+        severity: "critical",
+        weight: 35,
+        source: "external-confirmed"
+      });
+    }
+  });
+
+  const updated = buildResult({
+    ...calculateRisk(result.signals),
+    signals: result.signals,
+    urls: result.urls || [],
+    type: result.type
+  });
+  Object.assign(result, updated);
+}
+
 async function runAnalysis() {
   if (state.running) return;
 
@@ -630,8 +820,20 @@ async function runAnalysis() {
   await new Promise((resolve) => setTimeout(resolve, 650));
 
   const result = analyzeContent(input, type);
+
+  // A consulta externa complementa a analise local; a indisponibilidade fica
+  // visivel para a pessoa usuaria e nunca e tratada como URL segura.
+  const onlineCheck = await checkUrlsOnline(result.urls);
+  if (onlineCheck.results.length > 0) mergeOnlineSignals(result, onlineCheck.results);
+  result.onlineStatus = onlineCheck.status;
+  result.onlineMessage = onlineCheck.message || "";
+  result.onlineChecked = onlineCheck.status === "checked";
+
   state.currentAnalysis = { ...result, content: input };
   renderResult(state.currentAnalysis);
+  document.dispatchEvent(new CustomEvent("scangolpe:analysis-complete", {
+    detail: { analysis: { ...state.currentAnalysis } }
+  }));
   setLoading(false);
 }
 
@@ -701,7 +903,9 @@ async function reportGolpe(analysis) {
     conteudo: analysis.content,
     dominio: analysis.domain,
     risco: analysis.risk,
-    confianca: analysis.confidence
+    // Campo legado da tabela de denuncias. A pontuacao nao e uma probabilidade,
+    // portanto nao enviamos mais uma "confianca" artificial.
+    confianca: 0
   });
 
   status.textContent = error
@@ -728,11 +932,52 @@ async function loadBrands() {
   }
 }
 
+// Banner opcional: aparece no topo do scanner quando ha sessao ativa.
+// NUNCA bloqueia o scanner; o history.js cuida da persistencia privada.
+function maybeInjectAuthBanner() {
+  if (!window.supabaseClient || !window.supabaseClient.auth) return;
+  if (document.getElementById("scanner-auth-banner")) return;
+
+  window.supabaseClient.auth.getSession().then(({ data }) => {
+    const session = data?.session;
+    if (!session?.user) return;
+
+    const scannerShell = document.querySelector(".scanner-shell");
+    if (!scannerShell) return;
+
+    const banner = document.createElement("div");
+    banner.id = "scanner-auth-banner";
+    banner.className = "scanner-auth-banner";
+    banner.innerHTML = `
+      <span class="scanner-auth-dot" aria-hidden="true"></span>
+      <span class="scanner-auth-text">
+        Sessao ativa como <strong>${escapeHtml(session.user.email || session.user.phone || "usuario")}</strong> — novas analises serao salvas no seu historico.
+      </span>
+      <a class="scanner-auth-action" href="#historico">Ver historico</a>
+      <button type="button" class="scanner-auth-action" id="scanner-auth-logout">Sair</button>
+    `;
+
+    scannerShell.prepend(banner);
+
+    document.getElementById("scanner-auth-logout")?.addEventListener("click", async () => {
+      try {
+        await window.supabaseClient.auth.signOut();
+        banner.remove();
+      } catch (error) {
+        console.warn("Falha ao encerrar sessao.", error);
+      }
+    });
+  }).catch(() => {
+    // Sessao nao checavel — segue normalmente sem banner.
+  });
+}
+
 async function init() {
   initTheme();
   bindEvents();
   updateCharacterCount();
   await Promise.all([loadBrands(), loadConfirmedScamDomains()]);
+  maybeInjectAuthBanner();
 }
 
 init();

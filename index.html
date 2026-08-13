@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css?v=scanner-2">
 </head>
 <body>
   <header class="app-header">
@@ -28,6 +28,7 @@
 
     <nav class="main-nav" aria-label="Navegacao principal">
       <a href="#scanner">Scanner</a>
+      <a href="#historico">Historico</a>
       <a href="#modelo">Modelo</a>
       <a href="#defesas">Defesas</a>
     </nav>
@@ -43,7 +44,8 @@
         </span>
         <span class="sr-only" id="theme-label">Ativar tema claro</span>
       </button>
-      <a class="header-cta" href="#scanner">Escanear</a>
+      <a class="header-link" href="auth.html">Entrar</a>
+      <a class="header-cta" href="auth.html?redirectTo=%2Findex.html%23scanner">Escanear</a>
     </div>
   </header>
 
@@ -88,7 +90,7 @@
         <div class="hero-trust" aria-label="Resumo do scanner">
           <span><i></i> Motor de protecao ativo</span>
           <span>4 camadas de analise</span>
-          <span>Privacidade local</span>
+          <span>Historico privado</span>
         </div>
       </div>
     </section>
@@ -99,8 +101,8 @@
         <span>URL, texto, Pix e comportamento</span>
       </div>
       <div>
-        <strong>Local-first</strong>
-        <span>Analise no navegador, sem enviar seus dados</span>
+        <strong>Analise local</strong>
+        <span>Motor no navegador; historico privado para contas conectadas</span>
       </div>
       <div>
         <strong>Explicavel</strong>
@@ -118,7 +120,7 @@
         <h2>Analise o conteudo suspeito</h2>
         <p>
           Cole uma mensagem, link, chave Pix, boleto ou anuncio. O resultado indica nivel de risco,
-          confianca da analise, motivos encontrados e proximas acoes recomendadas.
+          indicios encontrados e proximas acoes recomendadas. Ele nao substitui a confirmacao por um canal oficial.
         </p>
       </div>
 
@@ -132,7 +134,7 @@
 
         <div class="input-group">
           <label id="scan-label" for="scan-input">Cole a mensagem suspeita que voce recebeu:</label>
-          <textarea id="scan-input" class="scan-textarea" rows="8" spellcheck="true" placeholder="Ex: Parabens! Voce ganhou R$ 5.000 no Pix. Clique aqui para resgatar: bit.ly/premio"></textarea>
+          <textarea id="scan-input" class="scan-textarea" rows="8" maxlength="10000" spellcheck="true" placeholder="Ex: Parabens! Voce ganhou R$ 5.000 no Pix. Clique aqui para resgatar: bit.ly/premio"></textarea>
           <div class="input-meta">
             <span id="char-count">0 caracteres</span>
             <span>Atalho: Ctrl + Enter</span>
@@ -145,6 +147,58 @@
         </button>
 
         <section class="result-card" id="result-card" aria-live="polite" aria-hidden="true"></section>
+      </div>
+    </section>
+
+    <section class="history-section" id="historico" aria-labelledby="history-title">
+      <div class="section-heading">
+        <span class="eyebrow">Sua atividade</span>
+        <h2 id="history-title">Historico de analises</h2>
+        <p>
+          Quando voce usa o scanner com uma conta conectada, o resultado fica salvo aqui de forma privada.
+          Cada usuario acessa somente as proprias analises.
+        </p>
+      </div>
+
+      <div class="history-shell">
+        <div class="history-guest" id="history-guest">
+          <span class="history-lock" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          </span>
+          <div>
+            <h3>Entre para guardar suas analises</h3>
+            <p>Visitantes continuam usando o scanner normalmente, mas o conteudo nao e armazenado.</p>
+          </div>
+          <a class="history-login-button" href="auth.html?redirectTo=%2Findex.html%23historico">Entrar ou criar conta</a>
+        </div>
+
+        <div class="history-account" id="history-account" hidden>
+          <div class="history-toolbar">
+            <div>
+              <span class="history-account-label">Historico privado</span>
+              <strong id="history-account-email"></strong>
+            </div>
+            <button class="history-refresh" id="history-refresh" type="button">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M20 11a8.1 8.1 0 1 0 2 5.5"/><path d="M20 4v7h-7"/></svg>
+              Atualizar
+            </button>
+          </div>
+
+          <div class="history-status" id="history-status" role="status" aria-live="polite"></div>
+
+          <div class="history-empty" id="history-empty" hidden>
+            <span aria-hidden="true">01</span>
+            <h3>Seu historico comeca no proximo scan</h3>
+            <p>Cole um conteudo suspeito acima e inicie a varredura.</p>
+            <a href="#scanner">Ir para o scanner</a>
+          </div>
+
+          <div class="history-list" id="history-list" aria-live="polite"></div>
+
+          <button class="history-load-more" id="history-load-more" type="button" hidden>
+            Carregar analises anteriores
+          </button>
+        </div>
       </div>
     </section>
 
@@ -193,8 +247,8 @@
         <div class="defense-copy">
           <h3>Menos promessa vazia, mais decisao segura.</h3>
           <p>
-            O scanner nao diz apenas "seguro" ou "golpe". Ele mostra por que chegou ao resultado,
-            mede confianca e orienta o usuario para confirmar por canais oficiais. Isso reduz tanto golpes obvios
+            O scanner nao diz apenas "seguro" ou "golpe". Ele mostra os indicios encontrados
+            e orienta o usuario para confirmar por canais oficiais. Isso reduz tanto golpes obvios
             quanto ataques convincentes que usam marcas conhecidas.
           </p>
         </div>
@@ -216,12 +270,12 @@
       <div class="plans-grid">
         <article class="plan-card">
           <h3>Versao atual</h3>
-          <strong>Local</strong>
-          <p>Boa para demonstracao, prototipo, estudo e uso privado sem enviar dados sensiveis.</p>
+          <strong>Motor local + conta privada</strong>
+          <p>A deteccao roda no navegador; com login, um snapshot do resultado e armazenado no historico privado.</p>
           <ul>
             <li>Motor explicavel no navegador</li>
             <li>Tema claro e escuro</li>
-            <li>Sem dependencia de servidor</li>
+            <li>Autenticacao e historico com Supabase RLS</li>
           </ul>
         </article>
         <article class="plan-card featured">
@@ -230,7 +284,7 @@
           <p>Ideal para clientes finais, empresas e operacao com base de golpes em constante atualizacao.</p>
           <ul>
             <li>API com modelo treinado</li>
-            <li>Reputacao de dominio em tempo real</li>
+            <li>Reputacao de dominio com status transparente de disponibilidade</li>
             <li>Base colaborativa de denuncias</li>
           </ul>
         </article>
@@ -245,6 +299,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
   <script src="supabase-client.js" defer></script>
-  <script src="app.js" defer></script>
+  <script src="app.js?v=scanner-2" defer></script>
+  <script src="history.js?v=scanner-2" defer></script>
 </body>
 </html>
