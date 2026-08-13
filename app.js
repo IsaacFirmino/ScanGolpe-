@@ -71,6 +71,22 @@ const rules = [
     pattern: /\b(desconto de \d{2,3}%|preco imperdivel|renda extra|ganhe dinheiro|retorno garantido|sem risco|i?phone.{0,20}r\$\s?\d{2,3})\b/i
   },
   {
+    id: "recrutamento_renda_irreal",
+    label: "Oferta de trabalho com ganho diario fora do padrao",
+    detail: "Convites vagos para ser agente ou parceiro, com valores altos por dia, sao usados para atrair contatos e depois cobrar taxas ou pedir dados.",
+    severity: "high",
+    weight: 18,
+    pattern: /\b(agente|parceir[oa]s?|representante|divulgador|afiliad[oa]s?).{0,140}\b(salario|pagamento|renda|ganhos?|comissao).{0,60}\b(diario|por dia)\b.{0,60}\br\$\s?[\d.]+|\b(salario|pagamento|renda|ganhos?|comissao).{0,60}\b(diario|por dia)\b.{0,60}\br\$\s?[\d.]+.{0,140}\b(agente|parceir[oa]s?|representante|divulgador|afiliad[oa]s?)\b/i
+  },
+  {
+    id: "recrutamento_whatsapp",
+    label: "Convite de trabalho direcionado ao WhatsApp",
+    detail: "Uma vaga legitima pode usar WhatsApp, mas a combinacao de convite generico, remuneracao e contato externo merece confirmacao independente.",
+    severity: "high",
+    weight: 18,
+    pattern: /\b(agente|parceir[oa]s?|representante|divulgador|afiliad[oa]s?|plataforma).{0,180}\b(salario|pagamento|renda|ganhos?|comissao).{0,140}\b(whatsapp|telegram)\b|\b(salario|pagamento|renda|ganhos?|comissao).{0,140}\b(whatsapp|telegram)\b.{0,140}\b(agente|parceir[oa]s?|representante|divulgador|afiliad[oa]s?|plataforma)\b/i
+  },
+  {
     id: "canal_informal",
     label: "Canal informal para tratar assunto sensivel",
     detail: "Bancos, governo e grandes empresas nao resolvem senha, token ou pagamento por conversa informal.",
@@ -157,6 +173,9 @@ function normalizeText(value) {
     .toLowerCase()
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
+    // Emojis e simbolos entre palavras sao comuns em mensagens de golpe.
+    // Eles viram espacos para que "salario diario" seja lido como duas palavras.
+    .replace(/[^\p{L}\p{N}\s:/?&.=#$%+@_-]/gu, " ")
     .replace(/[^\S\r\n]+/g, " ")
     .trim();
 
@@ -580,6 +599,9 @@ function buildResult({ risk, score, externalConfirmation, signals, urls, type })
     .sort((a, b) => b.weight - a.weight)
     .slice(0, 5);
   const hasExtortionSignal = signals.some((signal) => signal.id === "extorsao_ameaca");
+  const hasRecruitmentScamSignal = signals.some((signal) =>
+    signal.id === "recrutamento_renda_irreal" || signal.id === "recrutamento_whatsapp"
+  );
   const hasAnySignal = signals.length > 0;
   const title = risk === "low" && hasAnySignal
     ? "Poucos sinais detectados — confirme antes de agir"
@@ -593,7 +615,13 @@ function buildResult({ risk, score, externalConfirmation, signals, urls, type })
         "Preserve capturas, numeros, links e comprovantes sem apagar a conversa.",
         "Se houver risco imediato a sua seguranca, procure o canal oficial de emergencia da sua regiao."
       ]
-    : selected.actions;
+    : hasRecruitmentScamSignal
+      ? [
+          "Nao pague taxa, curso, cadastro, liberacao ou deposito para comecar a trabalhar.",
+          "Pesquise a empresa e o CNPJ; confirme a vaga pelo site ou canal oficial, nao apenas pelo WhatsApp recebido.",
+          "Nao envie documentos, selfie ou dados bancarios antes de validar quem esta recrutando."
+        ]
+      : selected.actions;
 
   return {
     ...selected,
