@@ -205,4 +205,3 @@ O histórico guarda um snapshot do resultado: tipo e conteúdo analisados, domí
 - Confirmação obrigatória de e-mail antes de permitir salvar histórico
 - Política de retenção ou exclusão em massa do histórico
 - Área administrativa separada para moderação de `relatos_golpe`
-
