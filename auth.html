@@ -118,11 +118,6 @@
               <span>Entrar com e-mail</span>
               <svg class="auth-method-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
             </button>
-            <button class="auth-method-button" type="button" data-action="select-phone">
-              <span class="auth-method-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.8 19.8 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.12.95.36 1.89.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.92.34 1.86.58 2.81.7A2 2 0 0 1 22 16.92z"/></svg></span>
-              <span>Entrar com telefone</span>
-              <svg class="auth-method-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
-            </button>
           </div>
 
           <div class="auth-message" id="auth-message-method" role="status" aria-live="polite" hidden></div>
@@ -158,45 +153,6 @@
           </form>
           <div class="auth-message" id="auth-message-email" role="status" aria-live="polite" hidden></div>
           <p class="auth-switch">Ainda não tem conta? <button class="auth-link" type="button" data-action="select-signup">Criar conta</button></p>
-        </div>
-
-        <div class="auth-view" data-view="phone" hidden>
-          <button class="auth-state-back" type="button" data-action="select-method"><span aria-hidden="true">←</span> Voltar</button>
-          <header class="auth-card-header">
-            <h2>Entrar com telefone</h2>
-            <p>Enviaremos um código de verificação por SMS.</p>
-          </header>
-          <form class="auth-form" id="auth-form-phone" novalidate>
-            <div class="auth-field">
-              <label for="auth-phone">Seu telefone</label>
-              <input type="tel" id="auth-phone" name="phone" autocomplete="tel" inputmode="tel" placeholder="+55 (11) 9 9999-9999" required>
-              <p class="auth-field-hint">Use o DDD. Números sem código de país usam +55.</p>
-            </div>
-            <button class="auth-primary-button" type="submit">
-              <span class="auth-button-label">Enviar código</span>
-              <span class="auth-button-spinner" aria-hidden="true"></span>
-            </button>
-          </form>
-          <div class="auth-message" id="auth-message-phone" role="status" aria-live="polite" hidden></div>
-        </div>
-
-        <div class="auth-view" data-view="phone-otp" hidden>
-          <button class="auth-state-back" type="button" data-action="select-method"><span aria-hidden="true">←</span> Voltar</button>
-          <header class="auth-card-header">
-            <h2>Verifique seu telefone</h2>
-            <p>Digite o código que enviamos para <strong id="auth-phone-preview"></strong>.</p>
-          </header>
-          <form class="auth-form" id="auth-form-otp" novalidate>
-            <div class="auth-field auth-otp-field">
-              <label for="auth-otp">Código de verificação</label>
-              <input type="text" id="auth-otp" name="otp" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="one-time-code" placeholder="000000" required>
-            </div>
-            <button class="auth-primary-button" type="submit">
-              <span class="auth-button-label">Confirmar código</span>
-              <span class="auth-button-spinner" aria-hidden="true"></span>
-            </button>
-          </form>
-          <div class="auth-message" id="auth-message-otp" role="status" aria-live="polite" hidden></div>
         </div>
 
         <div class="auth-view" data-view="signup" hidden>
@@ -307,3 +263,4 @@
   <script src="auth.js" defer></script>
 </body>
 </html>
+
