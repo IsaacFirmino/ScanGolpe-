@@ -165,10 +165,31 @@
 
   function friendlyAuthError(error) {
     if (!error) return null;
+    const code = String(error.code || "").toLowerCase();
     const message = String(error.message || "").toLowerCase();
 
-    if (message.includes("provider") && message.includes("not enabled")) {
+    if (
+      code === "phone_provider_disabled"
+      || code === "otp_disabled"
+      || (message.includes("phone provider") && message.includes("disabled"))
+      || message.includes("unsupported phone provider")
+    ) {
+      return "A entrada por telefone ainda não está habilitada. Tente outra opção por enquanto.";
+    }
+    if (
+      code === "provider_disabled"
+      || (message.includes("provider") && message.includes("not enabled"))
+    ) {
       return "Este método de entrada ainda não está disponível. Tente outra opção.";
+    }
+    if (code === "sms_send_failed") {
+      return "O provedor de SMS não conseguiu enviar o código. Tente novamente ou use outra opção de entrada.";
+    }
+    if (code === "over_sms_send_rate_limit") {
+      return "Muitos códigos foram enviados para este número. Aguarde alguns minutos antes de tentar novamente.";
+    }
+    if (code === "captcha_failed") {
+      return "A verificação de segurança falhou. Atualize a página e tente novamente.";
     }
     if (message.includes("invalid login credentials")) {
       return "E-mail ou senha incorretos. Verifique e tente novamente.";
