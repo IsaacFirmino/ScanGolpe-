@@ -86,7 +86,7 @@ Tela dedicada de login/cadastro com identidade visual alinhada à landing page (
 | --- | --- | --- |
 | `auth.html` | refinado | Card progressivo em tela dividida no desktop; autenticação priorizada no mobile |
 | `auth.css` | refinado | Estados fluidos, card compacto e responsividade com os tokens visuais existentes |
-| `auth.js` | refinado | Máquina de estados do card e fluxos reais de login, cadastro, OAuth, OTP, recuperação e sessão |
+| `auth.js` | refinado | Máquina de estados do card e fluxos reais de login, cadastro, OAuth, recuperação e sessão |
 | `supabase-client.js` | inalterado | Já expõe `window.supabaseClient` — reaproveitado |
 | `index.html` | alterado | Header agora tem link "Entrar" → `auth.html` (botão "Escanear" também leva ao login se deslogado) |
 | `app.js` | alterado | Injeta o banner de sessão e publica o resultado concluído para o histórico, sem bloquear o scanner anônimo |
@@ -103,7 +103,6 @@ Tela dedicada de login/cadastro com identidade visual alinhada à landing page (
 - **Logout** (`signOut`) — restaura o estado da UI
 - **Recuperação de senha** (`resetPasswordForEmail` + `updateUser`) — envio do link e definição da nova senha
 - **Sessão persistente** (`getSession` + `onAuthStateChange`) — sobrevive a refresh, com UI sincronizada
-- **Telefone/OTP** (`signInWithOtp` + `verifyOtp`) — envia código real por SMS via Twilio
 
 ### O que precisa ser configurado no painel do Supabase
 
@@ -130,16 +129,7 @@ Sem isso, OAuth e o e-mail de redefinição de senha **não voltam para a sua ap
 
 > ⚠️ Nunca cole o `Client Secret` no front-end. Ele fica **apenas** no painel do Supabase (server-side).
 
-#### 3. Telefone / OTP (Authentication → Providers → Phone)
-
-1. Habilite o provider "Phone" no painel do Supabase
-2. Crie uma conta no [Twilio](https://www.twilio.com/) (ou MessageBird, Vonage etc.)
-3. Preencha Account SID / Auth Token / número remetente no Supabase
-4. **Billing**: o envio de SMS pelo Supabase exige que o projeto tenha um cartão cadastrado (cobrança por SMS)
-
-> O fluxo `signInWithOtp` já está implementado e ativo no `auth.js`. O número é normalizado automaticamente para o formato E.164 antes do envio. O estado de código só aparece depois que o Supabase confirma o envio do SMS.
-
-#### 4. E-mail de recuperação (Authentication → Email Templates)
+#### 3. E-mail de recuperação (Authentication → Email Templates)
 
 O template `Reset Password` é o usado pelo `resetPasswordForEmail`. Você pode personalizar o texto do e-mail enviado aos usuários.
 
@@ -151,13 +141,12 @@ O template `Reset Password` é o usado pelo `resetPasswordForEmail`. Você pode 
    python -m http.server 8000
    ```
 2. Acessar [`http://localhost:8000/auth.html`](http://localhost:8000/auth.html)
-3. Confirmar que o estado inicial mostra apenas Google, e-mail, telefone e o acesso ao cadastro
+3. Confirmar que o estado inicial mostra apenas Google, e-mail e o acesso ao cadastro
 4. **Login e-mail/senha** — escolher e-mail, entrar e confirmar o redirecionamento ao scanner
 5. **Cadastro** — abrir "Criar conta", validar confirmação de senha e concluir o `signUp`
 6. **Google OAuth** — usar "Continuar com Google" (funciona depois de configurar o provider)
 7. **Recuperação de senha** — solicitar o link, abri-lo e salvar uma nova senha no estado de redefinição
-8. **Telefone/OTP** — enviar o SMS e confirmar que o campo do código só surge após o retorno de sucesso
-9. **Sessão persistente** — fazer login e atualizar a página; o card mostra a sessão ativa
+8. **Sessão persistente** — fazer login e atualizar a página; o card mostra a sessão ativa
 
 ### Onde a tela redireciona após login
 
@@ -171,7 +160,7 @@ O template `Reset Password` é o usado pelo `resetPasswordForEmail`. Você pode 
 - O cliente Supabase usa a chave **publishable/anon** (chave pública, escopada por RLS no servidor)
 - Senhas são gerenciadas **exclusivamente** pelo Supabase Auth
 - Mensagens de erro genéricas do servidor são convertidas em texto amigável para o usuário
-- Cada etapa substitui a anterior; campos de senha, telefone e OTP nunca aparecem juntos
+- Cada etapa substitui a anterior; os campos de login, cadastro e recuperação nunca aparecem juntos
 - Recuperação de senha não revela se o e-mail está cadastrado (mesma mensagem para sucesso e e-mail inexistente)
 
 ### Utilitários SQL internos

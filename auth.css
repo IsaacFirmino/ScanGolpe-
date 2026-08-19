@@ -511,7 +511,7 @@
 
 [data-theme="light"] .auth-divider-line { background: rgba(10, 4, 48, .12); }
 
-/* ----- Tabs E-mail / Telefone ----- */
+/* ----- Métodos de entrada ----- */
 
 .auth-tabs {
   display: grid;

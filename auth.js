@@ -11,8 +11,6 @@
     views: Array.from(document.querySelectorAll("[data-view]")),
     forms: {
       email: document.getElementById("auth-form-email"),
-      phone: document.getElementById("auth-form-phone"),
-      otp: document.getElementById("auth-form-otp"),
       signup: document.getElementById("auth-form-signup"),
       recover: document.getElementById("auth-form-recover"),
       reset: document.getElementById("auth-form-reset")
@@ -20,8 +18,6 @@
     inputs: {
       email: document.getElementById("auth-email"),
       password: document.getElementById("auth-password"),
-      phone: document.getElementById("auth-phone"),
-      otp: document.getElementById("auth-otp"),
       signupEmail: document.getElementById("auth-signup-email"),
       signupPassword: document.getElementById("auth-signup-password"),
       signupConfirm: document.getElementById("auth-signup-confirm"),
@@ -32,20 +28,16 @@
     messages: {
       method: document.getElementById("auth-message-method"),
       email: document.getElementById("auth-message-email"),
-      phone: document.getElementById("auth-message-phone"),
-      otp: document.getElementById("auth-message-otp"),
       signup: document.getElementById("auth-message-signup"),
       recover: document.getElementById("auth-message-recover"),
       reset: document.getElementById("auth-message-reset")
     },
-    phonePreview: document.getElementById("auth-phone-preview"),
     signedEmail: document.getElementById("auth-signed-email")
   };
 
   const state = {
     currentView: "method",
     submitting: false,
-    verifiedPhone: null,
     recoveryActive: false
   };
 
@@ -107,14 +99,7 @@
     if (focusTarget) window.setTimeout(() => focusTarget.focus(), 180);
   }
 
-  function resetPhoneFlow() {
-    state.verifiedPhone = null;
-    if (elements.inputs.otp) elements.inputs.otp.value = "";
-    if (elements.phonePreview) elements.phonePreview.textContent = "";
-  }
-
   function returnToMethodSelector() {
-    resetPhoneFlow();
     showView("method");
   }
 
@@ -165,10 +150,17 @@
 
   function friendlyAuthError(error) {
     if (!error) return null;
+    const code = String(error.code || "").toLowerCase();
     const message = String(error.message || "").toLowerCase();
 
-    if (message.includes("provider") && message.includes("not enabled")) {
+    if (
+      code === "provider_disabled"
+      || (message.includes("provider") && message.includes("not enabled"))
+    ) {
       return "Este método de entrada ainda não está disponível. Tente outra opção.";
+    }
+    if (code === "captcha_failed") {
+      return "A verificação de segurança falhou. Atualize a página e tente novamente.";
     }
     if (message.includes("invalid login credentials")) {
       return "E-mail ou senha incorretos. Verifique e tente novamente.";
@@ -188,36 +180,7 @@
     if (message.includes("network") || message.includes("failed to fetch")) {
       return "Falha de rede. Verifique sua conexão e tente novamente.";
     }
-    if (message.includes("otp") || message.includes("token has expired")) {
-      return "O código é inválido ou expirou. Confira e tente novamente.";
-    }
-    if (message.includes("phone") || message.includes("sms")) {
-      return "Não foi possível processar o telefone. Confira o número e tente novamente.";
-    }
     return "Algo deu errado. Tente novamente em instantes.";
-  }
-
-  function normalizePhoneE164(rawValue) {
-    if (!rawValue) return null;
-    const trimmed = String(rawValue).trim();
-    const digits = trimmed.replace(/\D/g, "");
-    if (!digits) return null;
-
-    if (trimmed.startsWith("+") && digits.length >= 10 && digits.length <= 15) {
-      return "+" + digits;
-    }
-    if (digits.length === 10 || digits.length === 11) return "+55" + digits;
-    if (digits.length >= 12 && digits.length <= 15) return "+" + digits;
-    return null;
-  }
-
-  function formatPhoneForDisplay(phone) {
-    if (!phone) return "seu telefone";
-    if (phone.startsWith("+55") && phone.length >= 12) {
-      const local = phone.slice(3);
-      return `+55 (${local.slice(0, 2)}) ${local.slice(2, -4)}-${local.slice(-4)}`;
-    }
-    return phone;
   }
 
   async function signInWithEmail(email, password) {
@@ -243,21 +206,6 @@
       provider: "google",
       options: { redirectTo: AUTH_PAGE_URL }
     });
-    if (error) throw error;
-  }
-
-  async function sendPhoneOtp(phone) {
-    if (!supabase) throw new Error("network unavailable");
-    const { error } = await supabase.auth.signInWithOtp({
-      phone,
-      options: { channel: "sms" }
-    });
-    if (error) throw error;
-  }
-
-  async function verifyPhoneOtp(phone, token) {
-    if (!supabase) throw new Error("network unavailable");
-    const { error } = await supabase.auth.verifyOtp({ phone, token, type: "sms" });
     if (error) throw error;
   }
 
@@ -292,10 +240,6 @@
           break;
         case "select-email":
           showView("email", { focus: elements.inputs.email });
-          break;
-        case "select-phone":
-          resetPhoneFlow();
-          showView("phone", { focus: elements.inputs.phone });
           break;
         case "select-signup":
           showView("signup", { focus: elements.inputs.signupEmail });
@@ -366,59 +310,6 @@
         redirectAfterLogin(650);
       } catch (error) {
         setMessage(elements.messages.email, friendlyAuthError(error), "error");
-        setLoading(button, false);
-      }
-    });
-
-    elements.forms.phone?.addEventListener("submit", async (event) => {
-      event.preventDefault();
-      if (state.submitting) return;
-
-      const phone = normalizePhoneE164(elements.inputs.phone.value);
-      const button = event.currentTarget.querySelector(".auth-primary-button");
-      if (!phone) {
-        setMessage(elements.messages.phone, "Informe um telefone válido com DDD.", "error");
-        return;
-      }
-
-      setLoading(button, true);
-      clearMessage(elements.messages.phone);
-      try {
-        await sendPhoneOtp(phone);
-        state.verifiedPhone = phone;
-        if (elements.phonePreview) elements.phonePreview.textContent = formatPhoneForDisplay(phone);
-        showView("phone-otp", { focus: elements.inputs.otp });
-        setMessage(elements.messages.otp, "Código enviado por SMS.", "success");
-      } catch (error) {
-        setMessage(elements.messages.phone, friendlyAuthError(error), "error");
-      } finally {
-        setLoading(button, false);
-      }
-    });
-
-    elements.forms.otp?.addEventListener("submit", async (event) => {
-      event.preventDefault();
-      if (state.submitting) return;
-
-      const token = elements.inputs.otp.value.replace(/\D/g, "");
-      const button = event.currentTarget.querySelector(".auth-primary-button");
-      if (!state.verifiedPhone) {
-        returnToMethodSelector();
-        return;
-      }
-      if (token.length !== 6) {
-        setMessage(elements.messages.otp, "Digite os 6 números do código recebido.", "error");
-        return;
-      }
-
-      setLoading(button, true);
-      clearMessage(elements.messages.otp);
-      try {
-        await verifyPhoneOtp(state.verifiedPhone, token);
-        setMessage(elements.messages.otp, "Telefone confirmado. Redirecionando...", "success");
-        redirectAfterLogin(650);
-      } catch (error) {
-        setMessage(elements.messages.otp, friendlyAuthError(error), "error");
         setLoading(button, false);
       }
     });
@@ -514,14 +405,11 @@
       }
     });
 
-    elements.inputs.otp?.addEventListener("input", (event) => {
-      event.target.value = event.target.value.replace(/\D/g, "").slice(0, 6);
-    });
   }
 
   function showSignedUser(user) {
     if (elements.signedEmail) {
-      elements.signedEmail.textContent = user?.email || user?.phone || "Conta conectada";
+      elements.signedEmail.textContent = user?.email || "Conta conectada";
     }
     showView("signed");
   }
